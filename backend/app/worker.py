@@ -55,7 +55,7 @@ def enhance_task(self, task_id: str, input_path: str, original_filename: str, sc
 
     backend = backend_label()
     try:
-        result = upscale(Path(input_path), output_path, scale=scale)
+        upscale(Path(input_path), output_path, scale=scale)
         result_url = f"/api/results/{out_name}"
         store.update(
             task_id,

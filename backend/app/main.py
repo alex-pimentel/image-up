@@ -101,7 +101,7 @@ async def enhance(
         raise HTTPException(status_code=413, detail=f"File too large. Max {settings.max_upload_mb}MB.")
 
     task_id = _short_id()
-    in_name = f"{task_id}{Path(file.filename).suffix.lower()}"
+    in_name = f"{task_id}{Path(file.filename or 'image').suffix.lower()}"
     in_path = settings.uploads_dir / in_name
     in_path.write_bytes(data)
 

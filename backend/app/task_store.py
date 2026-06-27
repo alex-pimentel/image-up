@@ -7,7 +7,6 @@ Layout:
 """
 from __future__ import annotations
 
-import json
 import logging
 from typing import Optional
 
@@ -50,7 +49,7 @@ class TaskStore:
             "started_at": str(time.time()),
             "finished_at": "",
         }
-        self.redis.hset(self._key(task_id), mapping=data)
+        self.redis.hset(self._key(task_id), mapping=data)  # type: ignore[arg-type]
         self.redis.expire(self._key(task_id), self.ttl)
 
     def get(self, task_id: str) -> Optional[dict]:

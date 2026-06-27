@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from PIL import Image
 
@@ -43,7 +42,7 @@ def resize_if_too_large(img: Image.Image, max_px: int) -> tuple[Image.Image, boo
         return img, False
     scale = max_px / longest
     new_size = (max(1, int(img.width * scale)), max(1, int(img.height * scale)))
-    return img.resize(new_size, Image.LANCZOS), True
+    return img.resize(new_size, Image.Resampling.LANCZOS), True
 
 
 def open_image(path: Path) -> Image.Image:

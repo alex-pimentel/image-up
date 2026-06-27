@@ -39,10 +39,8 @@ class MLBackend:
             model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=4)
 
         models_dir = Path(__file__).resolve().parent.parent.parent / "models"
-        model_path = str(models_dir / f"{model_name}.pth")
-        if not Path(model_path).exists():
-            # realesrgan package will auto-download on first use if path is None
-            model_path = None
+        candidate = str(models_dir / f"{model_name}.pth")
+        model_path: str | None = candidate if Path(candidate).exists() else None
 
         self.upsampler = RealESRGANer(
             scale=4,
@@ -123,7 +121,7 @@ def _fallback_upscale(img: Image.Image, scale: int) -> Image.Image:
     view; this produces a visibly crisper "after" so the difference is obvious
     even without the heavy ML deps installed."""
     new_size = (img.width * scale, img.height * scale)
-    up = img.resize(new_size, Image.LANCZOS)
+    up = img.resize(new_size, Image.Resampling.LANCZOS)
     # Unsharp mask: (radius, percent, threshold). Mild but noticeable.
     try:
         up = up.filter(_UNSHARP)
