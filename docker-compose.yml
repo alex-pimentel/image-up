@@ -1,0 +1,53 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    command: ["redis-server", "--maxmemory-policy", "allkeys-lru"]
+
+  backend:
+    build: ./backend
+    env_file: ./backend/.env.example
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      REDIS_KEY_PREFIX: "imageup:"
+      ALLOWED_ORIGINS: "http://localhost:8081,http://localhost:5173"
+      MODEL_NAME: RealESRGAN_x4plus
+      ENABLE_ML: "1"
+      USE_GPU: "0"
+      MODELS_DIR: /app/models
+    ports: ["8000:8000"]
+    depends_on: [redis]
+    volumes:
+      - models:/app/models
+      - ./backend/results:/app/results
+      - ./backend/uploads:/app/uploads
+
+  worker:
+    build: ./backend
+    # ARGS passed to entrypoint.py (which downloads weights then execs this).
+    command: ["celery", "-A", "app.worker", "worker", "--loglevel=info", "--concurrency=1"]
+    env_file: ./backend/.env.example
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      REDIS_KEY_PREFIX: "imageup:"
+      MODEL_NAME: RealESRGAN_x4plus
+      ENABLE_ML: "1"
+      USE_GPU: "0"
+      MODELS_DIR: /app/models
+    depends_on: [redis, backend]
+    volumes:
+      - models:/app/models
+      - ./backend/results:/app/results
+      - ./backend/uploads:/app/uploads
+
+  frontend:
+    build: ./frontend
+    ports: ["8081:80"]
+    depends_on: [backend]
+
+volumes:
+  models:

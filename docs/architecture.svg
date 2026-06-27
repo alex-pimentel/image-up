@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 360" font-family="DejaVu Sans, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#475569"/>
+    </marker>
+    <linearGradient id="fe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#0369a1"/>
+    </linearGradient>
+    <linearGradient id="be" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#22c55e"/><stop offset="1" stop-color="#15803d"/>
+    </linearGradient>
+    <linearGradient id="ml" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a855f7"/><stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="920" height="360" fill="#f8fafc"/>
+
+  <!-- Frontend -->
+  <rect x="60" y="40" width="240" height="110" rx="14" fill="url(#fe)"/>
+  <text x="180" y="80" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">Frontend</text>
+  <text x="180" y="108" text-anchor="middle" fill="#e0f2fe" font-size="14">Vue 3 + Vite + PrimeVue</text>
+  <text x="180" y="130" text-anchor="middle" fill="#e0f2fe" font-size="12">Nginx / Cloudflare Pages</text>
+
+  <!-- Backend -->
+  <rect x="340" y="40" width="240" height="110" rx="14" fill="url(#be)"/>
+  <text x="460" y="80" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">Backend</text>
+  <text x="460" y="108" text-anchor="middle" fill="#dcfce7" font-size="14">FastAPI (Python)</text>
+  <text x="460" y="130" text-anchor="middle" fill="#dcfce7" font-size="12">async task queue + polling</text>
+
+  <!-- ML -->
+  <rect x="620" y="40" width="240" height="110" rx="14" fill="url(#ml)"/>
+  <text x="740" y="80" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">ML Model</text>
+  <text x="740" y="108" text-anchor="middle" fill="#ede9fe" font-size="14">Real-ESRGAN / GFPGAN</text>
+  <text x="740" y="130" text-anchor="middle" fill="#ede9fe" font-size="12">PyTorch (CPU or GPU)</text>
+
+  <!-- Arrows -->
+  <line x1="300" y1="95" x2="338" y2="95" stroke="#475569" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="319" y="86" text-anchor="middle" fill="#334155" font-size="11">upload / poll</text>
+  <line x1="580" y1="95" x2="618" y2="95" stroke="#475569" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="599" y="86" text-anchor="middle" fill="#334155" font-size="11">infer</text>
+
+  <!-- Flow notes -->
+  <rect x="60" y="200" width="800" height="120" rx="12" fill="#fff" stroke="#cbd5e1"/>
+  <text x="80" y="228" fill="#0f172a" font-size="15" font-weight="bold">Request lifecycle</text>
+  <text x="80" y="254" fill="#334155" font-size="13">1. POST /api/enhance  →  returns task_id (non-blocking)</text>
+  <text x="80" y="276" fill="#334155" font-size="13">2. Worker runs Real-ESRGAN in the background, stores result on disk</text>
+  <text x="80" y="298" fill="#334155" font-size="13">3. Frontend polls GET /api/status/{task_id} until status == "done", then fetches the enhanced image</text>
+</svg>

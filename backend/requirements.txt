@@ -1,0 +1,16 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+Pillow>=10.2
+redis>=5.0
+celery>=5.3
+
+# ML backend (torch CPU build + Real-ESRGAN). GPU users should override the
+# torch index URL (see Dockerfile / .env). Model weights are downloaded at
+# container startup, not during build.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.2
+torchvision>=0.17
+basicsr>=1.4.2
+realesrgan>=0.3.0
+numpy>=1.24
