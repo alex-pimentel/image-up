@@ -125,6 +125,6 @@ def _fallback_upscale(img: Image.Image, scale: int) -> Image.Image:
     # Unsharp mask: (radius, percent, threshold). Mild but noticeable.
     try:
         up = up.filter(_UNSHARP)
-    except Exception:
+    except Exception:  # nosec - unsharp mask is a nice-to-have enhancement
         pass
     return up

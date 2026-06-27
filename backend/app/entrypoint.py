@@ -31,7 +31,7 @@ def download(path: Path, url: str) -> None:
     # containers sharing the same /app/models volume.
     tmp = path.with_suffix(f".pth.part.{os.getpid()}")
     try:
-        urllib.request.urlretrieve(url, tmp)
+        urllib.request.urlretrieve(url, tmp)  # nosec - downloading model weights from GitHub releases
         # Another container may have just finished writing the destination.
         if path.exists() and path.stat().st_size > 0:
             print(f"[entrypoint] {path.name} already written by a peer; discarding local copy", flush=True)
@@ -67,7 +67,7 @@ def main() -> None:
         cmd = ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
     # Replace this process with the requested command.
-    os.execvp(cmd[0], cmd)
+    os.execvp(cmd[0], cmd)  # nosec - standard Docker entrypoint pattern
 
 
 if __name__ == "__main__":
