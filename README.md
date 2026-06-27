@@ -15,6 +15,15 @@
     <img src="https://img.shields.io/badge/Real--ESRGAN-FF6F00?style=for-the-badge&logo=ai&logoColor=white" alt="Real-ESRGAN">
     <img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="License">
   </p>
+
+  <p>
+    <a href="https://github.com/alex-pimentel/image-up/actions/workflows/ci.yml"><img src="https://github.com/alex-pimentel/image-up/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+    <a href="https://github.com/alex-pimentel/image-up/actions/workflows/lint.yml"><img src="https://github.com/alex-pimentel/image-up/actions/workflows/lint.yml/badge.svg?branch=main" alt="Lint"></a>
+    <a href="https://github.com/alex-pimentel/image-up/actions/workflows/test.yml"><img src="https://github.com/alex-pimentel/image-up/actions/workflows/test.yml/badge.svg?branch=main" alt="Test"></a>
+    <a href="https://github.com/alex-pimentel/image-up/actions/workflows/security.yml"><img src="https://github.com/alex-pimentel/image-up/actions/workflows/security.yml/badge.svg?branch=main" alt="Security"></a>
+    <a href="https://github.com/alex-pimentel/image-up/actions/workflows/build.yml"><img src="https://github.com/alex-pimentel/image-up/actions/workflows/build.yml/badge.svg?branch=main" alt="Build"></a>
+    <a href="https://github.com/alex-pimentel/image-up/actions/workflows/deploy.yml"><img src="https://github.com/alex-pimentel/image-up/actions/workflows/deploy.yml/badge.svg?branch=main" alt="Deploy"></a>
+  </p>
 </div>
 
 ---
@@ -22,7 +31,7 @@
 ## Preview
 
 <p align="center">
-  <img src="preview.gif" alt="ImageUp preview" width="800">
+  <img src="docs/preview.gif" alt="ImageUp preview" width="800">
   <br />
   <a href="https://imageup.agenteresolve.com.br" target="_blank"><strong><code>try now →</code></strong></a>
 </p>
