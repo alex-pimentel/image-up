@@ -25,9 +25,9 @@ services:
       - ./backend/uploads:/app/uploads
 
   worker:
-    build: ./backend
-    # ARGS passed to entrypoint.py (which downloads weights then execs this).
-    command: ["celery", "-A", "app.worker", "worker", "--loglevel=info", "--concurrency=1"]
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.worker
     env_file: ./backend/.env.example
     environment:
       REDIS_URL: redis://redis:6379/0

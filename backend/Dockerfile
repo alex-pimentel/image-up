@@ -25,10 +25,10 @@ COPY . .
 # Directory for downloaded model weights (populated at runtime by entrypoint).
 RUN mkdir -p /app/models /app/results /app/uploads
 
-EXPOSE 8000
+EXPOSE 80
 
 # Entrypoint ensures model weights are present, then execs the given command
 # (default: uvicorn). For the worker service, docker-compose passes
 # "celery -A app.worker worker ..." as the command.
 ENTRYPOINT ["python", "app/entrypoint.py"]
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
