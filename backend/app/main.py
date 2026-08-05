@@ -78,7 +78,7 @@ def _validate_image(path: Path) -> None:
     try:
         with Image.open(path) as im:
             largest = max(im.width, im.height)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - any decode error becomes a 422
         raise HTTPException(status_code=422, detail=f"Invalid or unreadable image: {e}")
     if largest > settings.max_input_px:
         raise HTTPException(
@@ -89,7 +89,7 @@ def _validate_image(path: Path) -> None:
 
 @app.post("/api/enhance", response_model=EnhanceResponse)
 async def enhance(
-    file: UploadFile = File(...),
+    file: UploadFile = File(...),  # noqa: B008 - FastAPI requires the File() sentinel here
     scale: int = settings.default_scale,
 ) -> JSONResponse:
     if scale not in (2, 4):

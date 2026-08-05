@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel
 
@@ -22,12 +21,12 @@ class EnhanceResponse(BaseModel):
 class TaskStatusResponse(BaseModel):
     task_id: str
     status: TaskStatus
-    original_filename: Optional[str] = None
-    original_url: Optional[str] = None
-    result_url: Optional[str] = None
-    elapsed_sec: Optional[float] = None
-    detail: Optional[str] = None
-    backend: Optional[str] = None  # "ml" / "fallback"
+    original_filename: str | None = None
+    original_url: str | None = None
+    result_url: str | None = None
+    elapsed_sec: float | None = None
+    detail: str | None = None
+    backend: str | None = None  # "ml" / "fallback"
 
 
 class LimitsResponse(BaseModel):
@@ -43,4 +42,4 @@ class HealthResponse(BaseModel):
     version: str
     ml_available: bool
     backend: str  # "ml" or "fallback"
-    model_name: Optional[str] = None
+    model_name: str | None = None

@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 from PIL import Image, ImageFilter
 
@@ -21,16 +20,16 @@ logger = logging.getLogger(__name__)
 _UNSHARP = ImageFilter.UnsharpMask(radius=2, percent=160, threshold=3)
 
 # Cached singletons
-_ml_backend: Optional["MLBackend"] = None
-_ml_available: Optional[bool] = None
+_ml_backend: MLBackend | None = None
+_ml_available: bool | None = None
 
 
 class MLBackend:
     """Wraps the Real-ESRGAN python inference API."""
 
     def __init__(self, model_name: str, use_gpu: bool) -> None:
-        from realesrgan import RealESRGANer
         from basicsr.archs.rrdbnet_arch import RRDBNet
+        from realesrgan import RealESRGANer
 
         # Pick a model architecture based on the configured name.
         if model_name == "RealESRGAN_x4plus_anime_6B":
@@ -71,17 +70,17 @@ def is_ml_available() -> bool:
         _ml_available = False
         return _ml_available
     try:
-        import torch  # noqa: F401
-        import realesrgan  # noqa: F401
         import basicsr  # noqa: F401
+        import realesrgan  # noqa: F401
+        import torch  # noqa: F401
         _ml_available = True
-    except Exception as e:  # pragma: no cover - environment dependent
+    except Exception as e:  # pragma: no cover - environment dependent  # noqa: BLE001 - import probe
         logger.warning("ML backend unavailable, using fallback: %s", e)
         _ml_available = False
     return _ml_available
 
 
-def get_backend() -> "MLBackend":
+def get_backend() -> MLBackend:
     global _ml_backend
     if _ml_backend is None:
         _ml_backend = MLBackend(settings.model_name, settings.use_gpu)
@@ -102,8 +101,8 @@ def upscale(input_path: Path, output_path: Path, scale: int = 4) -> Image.Image:
         try:
             backend = get_backend()
             result = backend.enhance(img, out_scale=scale)
-        except Exception as e:
-            logger.exception("ML enhance failed: %s", e)
+        except Exception:
+            logger.exception("ML enhance failed")
             if settings.fallback_if_unavailable:
                 result = _fallback_upscale(img, scale)
             else:
@@ -125,6 +124,6 @@ def _fallback_upscale(img: Image.Image, scale: int) -> Image.Image:
     # Unsharp mask: (radius, percent, threshold). Mild but noticeable.
     try:
         up = up.filter(_UNSHARP)
-    except Exception:  # nosec - unsharp mask is a nice-to-have enhancement
+    except Exception:  # noqa: BLE001, S110  # nosec - unsharp mask is a nice-to-have enhancement
         pass
     return up

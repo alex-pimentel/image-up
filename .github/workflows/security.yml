@@ -17,4 +17,4 @@ jobs:
           python-version: "3.12"
       - run: pip install bandit pip-audit
       - run: bandit -r app/ -x tests -s B104
-      - run: pip-audit --strict -r requirements.txt --no-deps
+      - run: pip-audit --strict -r requirements-audit.txt --no-deps

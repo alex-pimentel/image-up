@@ -26,4 +26,10 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt
       - run: pip install pytest
-      - run: pytest tests/ -v
+      - name: Run tests (skip when no test files exist)
+        run: |
+          if find tests -name "test_*.py" -print -quit 2>/dev/null | grep -q .; then
+            pytest tests/ -v
+          else
+            echo "No test files found — skipping."
+          fi

@@ -66,6 +66,6 @@ def enhance_task(self, task_id: str, input_path: str, original_filename: str, sc
         )
         return {"task_id": task_id, "status": "done", "result_url": result_url, "backend": backend}
     except Exception as e:  # pragma: no cover - error path
-        logger.exception("enhance_task failed for %s: %s", task_id, e)
+        logger.exception("enhance_task failed for %s", task_id)
         store.update(task_id, status=TaskStatus.ERROR.value, detail=str(e))
         return {"task_id": task_id, "status": "error", "detail": str(e)}

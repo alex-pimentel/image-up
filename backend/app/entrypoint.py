@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Container entrypoint: download Real-ESRGAN model weights on first start,
 then exec the passed command (uvicorn for API, celery for worker).
 
@@ -59,7 +58,7 @@ def main() -> None:
             else:
                 try:
                     download(path, url)
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001 - fall back to PIL if download fails
                     print(f"[entrypoint] download failed ({e}); the worker will run in fallback mode", flush=True)
 
     cmd = sys.argv[1:]

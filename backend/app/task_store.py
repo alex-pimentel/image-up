@@ -8,7 +8,6 @@ Layout:
 from __future__ import annotations
 
 import logging
-from typing import Optional
 
 from redis import Redis
 
@@ -19,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class TaskStore:
-    def __init__(self, redis_url: Optional[str] = None, prefix: Optional[str] = None) -> None:
+    def __init__(self, redis_url: str | None = None, prefix: str | None = None) -> None:
         self.redis = Redis.from_url(redis_url or settings.redis_url, decode_responses=True)
         self.prefix = (prefix or settings.redis_key_prefix).rstrip(":") + ":"
         self.ttl = settings.result_ttl_sec
@@ -32,7 +31,7 @@ class TaskStore:
         task_id: str,
         original_filename: str,
         original_path: str,
-        original_url: Optional[str] = None,
+        original_url: str | None = None,
         status: TaskStatus = TaskStatus.PENDING,
     ) -> None:
         import time
@@ -52,7 +51,7 @@ class TaskStore:
         self.redis.hset(self._key(task_id), mapping=data)  # type: ignore[arg-type]
         self.redis.expire(self._key(task_id), self.ttl)
 
-    def get(self, task_id: str) -> Optional[dict]:
+    def get(self, task_id: str) -> dict | None:
         raw = self.redis.hgetall(self._key(task_id))
         if not raw:
             return None
@@ -81,7 +80,7 @@ def status_from_raw(raw: dict) -> TaskStatus:
         return TaskStatus.PENDING
 
 
-def elapsed_from_raw(raw: dict) -> Optional[float]:
+def elapsed_from_raw(raw: dict) -> float | None:
     try:
         started = float(raw.get("started_at") or 0)
         finished = float(raw.get("finished_at") or 0)
@@ -93,12 +92,12 @@ def elapsed_from_raw(raw: dict) -> Optional[float]:
         return None
 
 
-def detail_or_none(raw: dict) -> Optional[str]:
+def detail_or_none(raw: dict) -> str | None:
     d = raw.get("detail") or ""
     return d or None
 
 
-def result_or_none(raw: dict) -> Optional[str]:
+def result_or_none(raw: dict) -> str | None:
     v = raw.get("result_url") or ""
     return v or None
 

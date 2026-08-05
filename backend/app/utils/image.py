@@ -5,7 +5,6 @@ from pathlib import Path
 
 from PIL import Image
 
-
 SUPPORTED_EXT = {".jpg", ".jpeg", ".png", ".webp"}
 
 
