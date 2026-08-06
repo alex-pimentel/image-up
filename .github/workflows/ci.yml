@@ -33,6 +33,16 @@ jobs:
         env:
           DEPLOY_BACKEND_WEBHOOK: ${{ secrets.DEPLOY_BACKEND_WEBHOOK }}
 
+  deploy-worker:
+    needs: [build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger worker deploy
+        run: curl -fsS "$DEPLOY_WORKER_WEBHOOK"
+        env:
+          DEPLOY_WORKER_WEBHOOK: ${{ secrets.DEPLOY_WORKER_WEBHOOK }}
+
   deploy-pages:
     needs: [build]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
