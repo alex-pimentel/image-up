@@ -23,6 +23,16 @@ jobs:
     needs: [test, security]
     uses: ./.github/workflows/build.yml
 
+  deploy-backend:
+    needs: [build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger backend deploy
+        run: curl -fsS "$DEPLOY_BACKEND_WEBHOOK"
+        env:
+          DEPLOY_BACKEND_WEBHOOK: ${{ secrets.DEPLOY_BACKEND_WEBHOOK }}
+
   deploy-pages:
     needs: [build]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
