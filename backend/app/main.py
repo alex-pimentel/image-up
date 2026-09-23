@@ -127,6 +127,7 @@ async def enhance(
             "original_filename": file.filename or "image",
             "scale": scale,
         },
+        queue=settings.celery_queue,
     )
 
     return JSONResponse({"task_id": task_id, "status": TaskStatus.PENDING.value})
