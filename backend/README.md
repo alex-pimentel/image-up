@@ -47,7 +47,9 @@ FastAPI (web)  ──enqueue──>  Celery broker (Redis, imageup:* keys)
 All Redis keys are prefixed with `imageup:` (configurable via
 `REDIS_KEY_PREFIX`) so this project can share a Redis instance with other
 projects without key collisions. Celery's own result-backend keys are also
-namespaced via a `global_keyprefix` transport option.
+namespaced via a `global_keyprefix` transport option. Tasks are published to
+and consumed only from `CELERY_QUEUE` (default `imageup`), which must be unique
+for each project sharing the broker.
 
 ## Enabling real ML
 

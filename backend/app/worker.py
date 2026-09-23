@@ -15,6 +15,7 @@ import logging
 from pathlib import Path
 
 from celery import Celery
+from kombu import Queue
 
 from .config import settings
 from .schemas import TaskStatus
@@ -38,6 +39,9 @@ celery_app.conf.update(
     task_acks_late=True,
     task_reject_on_worker_lost=True,
     worker_prefetch_multiplier=1,
+    task_default_queue=settings.celery_queue,
+    task_queues=(Queue(settings.celery_queue),),
+    task_create_missing_queues=False,
     # Namespacing for Celery's internal keys (results, etc.)
     result_backend_transport_options={"global_keyprefix": settings.redis_key_prefix.replace(":", "")},
     redis_backend_use_redis_group=False,

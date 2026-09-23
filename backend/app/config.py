@@ -33,6 +33,7 @@ class Settings:
     redis_url: str
     celery_broker_url: str
     celery_result_backend: str
+    celery_queue: str
     redis_key_prefix: str
 
     # Scale factor applied when no explicit factor is supplied
@@ -63,6 +64,7 @@ class Settings:
             redis_url=os.getenv("REDIS_URL", "redis://localhost:6379/0"),
             celery_broker_url=os.getenv("CELERY_BROKER_URL", os.getenv("REDIS_URL", "redis://localhost:6379/0")),
             celery_result_backend=os.getenv("CELERY_RESULT_BACKEND", os.getenv("REDIS_URL", "redis://localhost:6379/0")),
+            celery_queue=os.getenv("CELERY_QUEUE", "imageup"),
             redis_key_prefix=os.getenv("REDIS_KEY_PREFIX", "imageup:"),
             default_scale=int(os.getenv("DEFAULT_SCALE", "2")),
         )

@@ -11,6 +11,7 @@ services:
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
+      CELERY_QUEUE: imageup
       REDIS_KEY_PREFIX: "imageup:"
       ALLOWED_ORIGINS: "http://localhost:8081,http://localhost:5173"
       MODEL_NAME: RealESRGAN_x4plus
@@ -33,6 +34,7 @@ services:
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
+      CELERY_QUEUE: imageup
       REDIS_KEY_PREFIX: "imageup:"
       MODEL_NAME: RealESRGAN_x4plus
       ENABLE_ML: "1"
