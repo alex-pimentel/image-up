@@ -12,8 +12,8 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
-    <div class="flex flex-col items-center gap-3 mb-3">
+  <div class="rounded-2xl border border-border bg-surface p-6">
+    <div class="mb-3 flex flex-col items-center gap-3">
       <ProgressSpinner
         v-if="props.running"
         style="width: 36px; height: 36px"
@@ -21,17 +21,17 @@ const props = defineProps<{
       />
       <span
         v-else
-        class="inline-block w-3 h-3 rounded-full"
-        :class="props.progressLabel === 'Failed' ? 'bg-red-500' : 'bg-green-500'"
+        class="inline-block h-3 w-3 rounded-full"
+        :class="props.progressLabel === 'Failed' ? 'bg-destructive' : 'bg-success'"
       />
-      <p class="font-semibold text-slate-700">
+      <p class="font-semibold text-foreground">
         {{ props.progressLabel }}
       </p>
     </div>
 
     <div
       v-if="props.elapsed !== null"
-      class="text-sm text-slate-500"
+      class="text-sm text-muted-foreground"
     >
       Elapsed: {{ props.elapsed.toFixed(2) }}s
     </div>
@@ -39,7 +39,7 @@ const props = defineProps<{
     <!-- Size restriction reminder shown during processing -->
     <div
       v-if="props.limits"
-      class="mt-4 text-xs bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-3 py-2"
+      class="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200"
     >
       Input images are restricted to the largest side ≤
       <strong>{{ props.limits.max_input_px }}px</strong> in this preview build.
@@ -48,7 +48,7 @@ const props = defineProps<{
 
     <div
       v-if="props.backend"
-      class="mt-3 text-xs text-slate-500"
+      class="mt-3 text-xs text-muted-foreground"
     >
       Backend: <span class="font-mono">{{ props.backend }}</span>
     </div>

@@ -41,7 +41,7 @@ onBeforeUnmount(() => {
 <template>
   <div
     ref="container"
-    class="compare relative w-full select-none overflow-hidden rounded-2xl bg-slate-900"
+    class="compare relative w-full select-none overflow-hidden rounded-2xl bg-black"
     style="user-select: none"
     @pointermove="onPointerMove"
     @pointerup="onPointerUp"

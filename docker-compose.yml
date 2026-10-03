@@ -18,12 +18,12 @@ services:
       ENABLE_ML: "1"
       USE_GPU: "0"
       MODELS_DIR: /app/models
+      STORAGE_DIR: /app/storage
     ports: ["8000:8000"]
     depends_on: [redis]
     volumes:
       - models:/app/models
-      - ./backend/results:/app/results
-      - ./backend/uploads:/app/uploads
+      - ./backend/storage:/app/storage
 
   worker:
     build:
@@ -40,11 +40,11 @@ services:
       ENABLE_ML: "1"
       USE_GPU: "0"
       MODELS_DIR: /app/models
+      STORAGE_DIR: /app/storage
     depends_on: [redis, backend]
     volumes:
       - models:/app/models
-      - ./backend/results:/app/results
-      - ./backend/uploads:/app/uploads
+      - ./backend/storage:/app/storage
 
   frontend:
     build: ./frontend

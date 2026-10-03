@@ -65,7 +65,7 @@
 [ Real-ESRGAN / GFPGAN ]  (CPU or GPU)
         │
         v
-[ results/ ]  ──> served as static files
+[ Cloudflare R2 ]  ──> presigned GET (24h lifecycle)
 ```
 
 ---
@@ -155,7 +155,8 @@ docker compose up --build
 ```
 POST /api/enhance         →  { task_id: "abc-123", status: "queued" }
 GET  /api/status/abc-123  →  queued → processing → done
-GET  /api/results/abc-123.webp  →  image/webp (binary)
+GET  /api/uploads/abc-123       →  302 → presigned original (R2)
+GET  /api/results/abc-123.webp  →  302 → presigned result (R2)
 ```
 
 ---
@@ -170,9 +171,14 @@ GET  /api/results/abc-123.webp  →  image/webp (binary)
 | backend | `USE_GPU` | `0` | `1` to use CUDA, `0` for CPU |
 | backend | `MODEL_NAME` | `RealESRGAN_x4plus` | Real-ESRGAN model variant |
 | backend | `OUTPUT_QUALITY` | `90` | JPEG/WEBP quality for results |
-| backend | `RESULT_TTL_SEC` | `3600` | Seconds result files are kept |
+| backend | `RESULT_TTL_SEC` | `3600` | Seconds result metadata is kept |
 | backend | `REDIS_URL` | `redis://localhost:6379/0` | Redis broker URL |
+| backend | `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | — | Cloudflare R2 credentials (blank → local disk) |
+| backend | `R2_ENDPOINT` | — | `https://<account_id>.r2.cloudflarestorage.com` |
+| backend | `R2_BUCKET_TMP` | `agenteresolve-tmp` | Private bucket for uploads/results |
+| backend | `CLERK_JWKS_URL` / `CLERK_ISSUER` / `CLERK_AUDIENCE` | — | Optional Clerk JWT verification |
 | frontend | `VITE_API_BASE` | `http://localhost:8000` | Backend base URL |
+| frontend | `VITE_CLERK_PUBLISHABLE_KEY` | — | Clerk publishable key (UI degrades without it) |
 
 ---
 
@@ -180,7 +186,7 @@ GET  /api/results/abc-123.webp  →  image/webp (binary)
 
 - **Fallback mode**: If `torch` / `realesrgan` are not installed (e.g. on a tiny CI box), the service transparently degrades to PIL Lanczos upscaling so the API contract still works end-to-end. Set `ENABLE_ML=1` to require the real model.
 - **Memory**: The default model needs ~1.5GB RAM. For 4GB VPSes use `MODEL_NAME=RealESRGAN_x4plus_anime_6B` or the compact `realesr-animevideov3`.
-- **Caching**: Finished results are served from disk with a configurable TTL and could be fronted by Cloudflare's CDN cache.
+- **Storage**: Finished results and uploads are stored in Cloudflare R2 (`agenteresolve-tmp`, 24h lifecycle) and served via short-lived presigned GETs. Without R2 credentials the service falls back to local disk for development.
 
 ---
 
