@@ -12,7 +12,7 @@
     "lint": "eslint src --ext .vue,.js,.ts --fix"
   },
   "dependencies": {
-    "@agenteresolve/ui": "github:alex-pimentel/agenteresolve-ui#03587e43209fd6d09041f7e643e20d6d192dfdc2",
+    "@agenteresolve/ui-tokens": "github:alex-pimentel/agenteresolve-ui#03587e43209fd6d09041f7e643e20d6d192dfdc2&path:src/styles",
     "@clerk/clerk-js": "^6.37.0",
     "@primevue/themes": "^4.0.0",
     "primeicons": "^7.0.0",

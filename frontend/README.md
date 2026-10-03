@@ -34,18 +34,25 @@ pnpm preview
 ## Design system
 
 Tailwind v4 is the CSS engine. `src/assets/main.css` imports the framework and
-then the shared token layer from `@agenteresolve/ui`:
+then the shared token layer, consumed as a **token-only git subdirectory
+dependency** (`@agenteresolve/ui-tokens`) so the package's React/TypeScript
+build never runs:
+
+```jsonc
+// package.json
+"@agenteresolve/ui-tokens": "github:alex-pimentel/agenteresolve-ui#<commit>&path:src/styles"
+```
 
 ```css
 @import "tailwindcss";
-@import "@agenteresolve/ui/styles.css";
+@import "@agenteresolve/ui-tokens/globals.css";
 ```
 
 This gives the app the Agenteresolve dark/glass palette, brand colors and the
-Inter typeface. The React components in `@agenteresolve/ui` are **not** used —
-only its token CSS. Header/footer mirror the shared Service Shell visually and
-link to the sibling services. PrimeVue runs in dark mode via the `.app-dark`
-selector so its widgets match the tokens.
+Inter typeface. The React components in `@agenteresolve/ui` are **not** used.
+Header/footer mirror the shared Service Shell visually and link to the sibling
+services. PrimeVue runs in dark mode via the `.app-dark` selector so its widgets
+match the tokens.
 
 ## Authentication (Clerk, optional)
 

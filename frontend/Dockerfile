@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM node:20-alpine AS build
 WORKDIR /app
-# git is required to install the @agenteresolve/ui git dependency.
+# git is required to install the @agenteresolve/ui-tokens git dependency.
 RUN apk add --no-cache git
 COPY package.json pnpm-lock.yaml ./
 RUN corepack enable && corepack pnpm install --frozen-lockfile
