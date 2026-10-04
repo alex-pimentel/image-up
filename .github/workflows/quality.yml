@@ -39,6 +39,7 @@ jobs:
     uses: alex-pimentel/agenteresolve-ci/.github/workflows/docker-build-scan.yml@main
     with:
       context: backend
+      dockerfile: backend/Dockerfile
       image_name: image-up-api
 
   deploy-backend:
