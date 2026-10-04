@@ -1,6 +1,7 @@
 # ImageUp Frontend
 
-Vue 3 + Vite + PrimeVue + Tailwind.
+Vue 3 + Vite + PrimeVue + Tailwind v4, using the shared Agenteresolve design
+tokens and optional Clerk authentication.
 
 ## Develop
 
@@ -30,9 +31,41 @@ pnpm preview
    `status == "done"`.
 5. The before/after comparison slider (`ImageComparer.vue`) shows the result.
 
+## Design system
+
+Tailwind v4 is the CSS engine. `src/assets/main.css` imports the framework and
+then the shared token layer, consumed as a **token-only git subdirectory
+dependency** (`@agenteresolve/ui-tokens`) so the package's React/TypeScript
+build never runs:
+
+```jsonc
+// package.json
+"@agenteresolve/ui-tokens": "github:alex-pimentel/agenteresolve-ui#<commit>&path:src/styles"
+```
+
+```css
+@import "tailwindcss";
+@import "@agenteresolve/ui-tokens/globals.css";
+```
+
+This gives the app the Agenteresolve dark/glass palette, brand colors and the
+Inter typeface. The React components in `@agenteresolve/ui` are **not** used.
+Header/footer mirror the shared Service Shell visually and link to the sibling
+services. PrimeVue runs in dark mode via the `.app-dark` selector so its widgets
+match the tokens.
+
+## Authentication (Clerk, optional)
+
+`src/services/clerk.ts` wraps `@clerk/clerk-js`:
+
+- Set `VITE_CLERK_PUBLISHABLE_KEY` to enable login and send a Bearer token with
+  `POST /api/enhance`.
+- Without the key the app runs fully anonymous and the header shows a neutral
+  fallback link (no crash).
+
 ## Size restriction
 
 The current preview build restricts the **largest input side to 1000px**
 (fetched from `GET /api/config`, server-configurable via `MAX_INPUT_PX`).
 A banner and inline rejection message inform the user. Larger limits are
-intended for the upcoming premium membership layer.
+available to authenticated users server-side (`AUTH_MAX_UPLOAD_MB`).

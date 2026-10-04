@@ -4,6 +4,7 @@ import SelectButton from 'primevue/selectbutton'
 import UploadZone from './components/UploadZone.vue'
 import ImageComparer from './components/ImageComparer.vue'
 import TaskProgress from './components/TaskProgress.vue'
+import UserButton from './components/UserButton.vue'
 import { api } from './services/api'
 import type { Health, Limits, TaskResult } from './types'
 
@@ -87,45 +88,64 @@ onBeforeUnmount(() => stopPolling?.())
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col">
-    <header class="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-10">
-      <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+  <div class="flex min-h-screen flex-col bg-background text-foreground">
+    <header class="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
+      <div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
         <div class="flex items-center gap-3">
           <img
             src="/logo_agenteresolve.png"
-            alt="AgenteResolve"
+            alt="Agenteresolve"
             class="h-8 w-auto"
           >
-          <span class="font-semibold text-lg text-slate-900">ImageUp</span>
+          <span class="text-lg font-semibold text-foreground">ImageUp</span>
         </div>
-        <div
-          v-if="health"
-          class="text-xs text-slate-500 flex items-center gap-2"
-        >
-          <span
-            class="inline-block w-2 h-2 rounded-full"
-            :class="health.ml_available ? 'bg-green-500' : 'bg-amber-500'"
-          />
-          backend: <span class="font-mono">{{ health.backend }}</span>
+
+        <nav class="hidden items-center gap-5 text-sm text-muted-foreground md:flex">
+          <a
+            href="https://bg-removal.agenteresolve.com.br"
+            class="transition-colors hover:text-foreground"
+          >Remover fundo</a>
+          <a
+            href="https://qrcode.agenteresolve.com.br"
+            class="transition-colors hover:text-foreground"
+          >QR Code</a>
+          <a
+            href="https://imposition.agenteresolve.com.br"
+            class="transition-colors hover:text-foreground"
+          >Imposição</a>
+        </nav>
+
+        <div class="flex items-center gap-3">
+          <div
+            v-if="health"
+            class="hidden items-center gap-2 text-xs text-muted-foreground sm:flex"
+          >
+            <span
+              class="inline-block h-2 w-2 rounded-full"
+              :class="health.ml_available ? 'bg-success' : 'bg-amber-400'"
+            />
+            backend: <span class="font-mono">{{ health.backend }}</span>
+          </div>
+          <UserButton />
         </div>
       </div>
     </header>
 
-    <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-8 space-y-6">
-      <section class="text-center max-w-2xl mx-auto">
-        <h1 class="text-3xl font-bold tracking-tight text-slate-900">
+    <main class="mx-auto w-full max-w-5xl flex-1 space-y-6 px-4 py-8">
+      <section class="mx-auto max-w-2xl text-center">
+        <h1 class="text-3xl font-bold tracking-tight text-foreground">
           Enhance &amp; upscale your images with AI
         </h1>
-        <p class="mt-2 text-slate-700">
+        <p class="mt-2 text-muted-foreground">
           Real-ESRGAN upscaling in your browser. Upload a photo, our worker
           enhances it, and you get a side-by-side before/after comparison.
         </p>
       </section>
 
       <!-- Scale selector + output hint -->
-      <section class="max-w-2xl mx-auto flex flex-col items-center gap-2">
+      <section class="mx-auto flex max-w-2xl flex-col items-center gap-2">
         <div class="flex items-center gap-3">
-          <span class="text-sm text-slate-500">Upscale:</span>
+          <span class="text-sm text-muted-foreground">Upscale:</span>
           <SelectButton
             v-model="selectedScale"
             :options="scaleOptions"
@@ -139,7 +159,7 @@ onBeforeUnmount(() => stopPolling?.())
 
       <section
         v-if="busy || status"
-        class="max-w-2xl mx-auto"
+        class="mx-auto max-w-2xl"
       >
         <TaskProgress
           :progress-label="
@@ -156,20 +176,20 @@ onBeforeUnmount(() => stopPolling?.())
         <!-- result-notice contact prompt -->
         <div
           v-if="limits && resultUrl"
-          class="mt-3 text-sm text-slate-500 text-center"
+          class="mt-3 text-center text-sm text-muted-foreground"
         >
           Output limited to {{ limits.max_input_px * 4 }}×{{ limits.max_input_px * 4 }}px.
           Need higher resolution?
           <a
             :href="CONTACT_EMAIL"
-            class="text-blue-500 hover:text-blue-600 underline"
+            class="text-brand hover:underline"
           >Contact us</a>
         </div>
       </section>
 
       <section
         v-if="resultUrl && originalUrl"
-        class="max-w-3xl mx-auto space-y-3"
+        class="mx-auto max-w-3xl space-y-3"
       >
         <ImageComparer
           :before-url="originalUrl"
@@ -181,14 +201,14 @@ onBeforeUnmount(() => stopPolling?.())
           <a
             :href="resultUrl"
             download
-            class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg px-4 py-2 text-sm font-medium"
+            class="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-brand-foreground transition-colors hover:opacity-90"
           >
             ⬇ Download enhanced image
           </a>
         </div>
         <div class="text-center">
           <button
-            class="inline-flex items-center bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg px-4 py-2 text-sm font-medium"
+            class="inline-flex items-center rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-surface-strong"
             @click="reset"
           >
             Enhance another image
@@ -198,7 +218,7 @@ onBeforeUnmount(() => stopPolling?.())
 
       <section
         v-else
-        class="max-w-2xl mx-auto"
+        class="mx-auto max-w-2xl"
       >
         <UploadZone
           :limits="limits"
@@ -209,30 +229,48 @@ onBeforeUnmount(() => stopPolling?.())
       </section>
 
       <!-- Contact section -->
-      <section class="max-w-2xl mx-auto bg-white rounded-xl shadow-sm p-6 text-center">
-        <h2 class="text-xl font-bold text-slate-900">
+      <section class="mx-auto max-w-2xl rounded-xl border border-border bg-surface p-6 text-center">
+        <h2 class="text-xl font-bold text-foreground">
           Contact
         </h2>
-        <p class="mt-2 text-slate-700 text-sm">
+        <p class="mt-2 text-sm text-muted-foreground">
           For higher resolution, custom models, or commercial use:
         </p>
         <a
           :href="CONTACT_EMAIL"
-          class="mt-3 inline-block text-blue-600 hover:text-blue-700 font-medium underline"
+          class="mt-3 inline-block font-medium text-brand hover:underline"
         >
           Contact us
         </a>
       </section>
     </main>
 
-    <footer class="border-t border-slate-200 bg-white/80 py-6 text-center text-sm text-slate-500 backdrop-blur-sm">
-      Created by
-      <a
-        href="https://alexwebmaster.com.br"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="font-medium text-blue-600 hover:text-blue-700"
-      >alexwebmaster.com.br</a>
+    <footer class="border-t border-border bg-background/80 py-6 text-sm text-muted-foreground backdrop-blur">
+      <div class="mx-auto flex max-w-5xl flex-col items-center gap-2 px-4 sm:flex-row sm:justify-between">
+        <span>
+          Created by
+          <a
+            href="https://alexwebmaster.com.br"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="font-medium text-brand hover:underline"
+          >alexwebmaster.com.br</a>
+        </span>
+        <nav class="flex flex-wrap items-center justify-center gap-4">
+          <a
+            href="https://agenteresolve.com.br"
+            class="transition-colors hover:text-foreground"
+          >Agenteresolve</a>
+          <a
+            href="https://bg-removal.agenteresolve.com.br"
+            class="transition-colors hover:text-foreground"
+          >Remover fundo</a>
+          <a
+            href="https://qrcode.agenteresolve.com.br"
+            class="transition-colors hover:text-foreground"
+          >QR Code</a>
+        </nav>
+      </div>
     </footer>
   </div>
 </template>

@@ -1,4 +1,5 @@
 import type { EnhanceResponse, Health, Limits, TaskResult } from '../types'
+import { getSessionToken } from './clerk'
 
 const API_BASE = import.meta.env.VITE_API_BASE || ''
 
@@ -28,7 +29,16 @@ export const api = {
   async enhance(file: File, scale = 4): Promise<EnhanceResponse> {
     const form = new FormData()
     form.append('file', file)
-    const res = await fetch(`${API_BASE}/api/enhance?scale=${scale}`, { method: 'POST', body: form })
+
+    const headers: Record<string, string> = {}
+    const token = await getSessionToken()
+    if (token) headers.Authorization = `Bearer ${token}`
+
+    const res = await fetch(`${API_BASE}/api/enhance?scale=${scale}`, {
+      method: 'POST',
+      body: form,
+      headers,
+    })
     return json<EnhanceResponse>(res)
   },
 

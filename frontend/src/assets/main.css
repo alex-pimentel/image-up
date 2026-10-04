@@ -1,20 +1,30 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+/* Token-only git subdirectory dependency — see @agenteresolve/ui-tokens in package.json. */
+@import "@agenteresolve/ui-tokens/globals.css";
 
-:root {
-  color-scheme: light dark;
+/*
+ * ImageUp brand scale, aligned with the shared Agenteresolve palette.
+ * The shared token layer provides `--color-brand` (single accent); this adds
+ * the 50–900 ramp the existing UI uses.
+ */
+@theme {
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #5b8def;
+  --color-brand-600: #3b6fe0;
+  --color-brand-700: #2b57c4;
+  --color-brand-800: #2547a0;
+  --color-brand-900: #1e3a8a;
 }
 
-html, body, #app {
+html,
+body,
+#app {
   height: 100%;
   margin: 0;
-}
-
-body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  @apply bg-gradient-to-br from-slate-50 to-slate-100 text-slate-800 antialiased;
-  min-height: 100vh;
 }
 
 /* Smooth compare slider handle */

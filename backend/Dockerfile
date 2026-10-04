@@ -23,7 +23,8 @@ RUN python -c "import pathlib, torchvision; d=pathlib.Path(torchvision.__file__)
 COPY . .
 
 # Directory for downloaded model weights (populated at runtime by entrypoint).
-RUN mkdir -p /app/models /app/results /app/uploads
+# storage/ is the local-disk fallback used when R2_* credentials are absent.
+RUN mkdir -p /app/models /app/results /app/uploads /app/storage
 
 EXPOSE 80
 
