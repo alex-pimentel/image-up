@@ -72,9 +72,9 @@ function onClick() {
 
 <template>
   <div
-    class="upload-zone rounded-2xl border-2 border-dashed p-10 text-center transition-colors cursor-pointer"
+    class="upload-zone cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-colors"
     :class="
-      dragOver ? 'border-brand-500 bg-brand-50' : 'border-slate-300 bg-white hover:border-brand-400'
+      dragOver ? 'border-brand bg-brand/10' : 'border-border bg-surface hover:border-brand/60'
     "
     @dragover.prevent="dragOver = true"
     @dragleave.prevent="dragOver = false"
@@ -90,21 +90,21 @@ function onClick() {
       @change="(e) => handleFiles((e.target as HTMLInputElement).files)"
     />
     <div class="text-5xl mb-3">🖼️</div>
-    <p class="text-lg font-semibold text-slate-700">Drag &amp; drop an image here</p>
-    <p class="text-sm text-slate-500 mt-1">or click to choose a file</p>
-    <div class="mt-4 text-xs text-slate-500 space-y-1">
+    <p class="text-lg font-semibold text-foreground">Drag &amp; drop an image here</p>
+    <p class="mt-1 text-sm text-muted-foreground">or click to choose a file</p>
+    <div class="mt-4 space-y-1 text-xs text-muted-foreground">
       <p>Allowed: {{ allowed().join(', ') }}</p>
     </div>
 
     <div
       v-if="rejectReason"
-      class="mt-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2"
+      class="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-red-300"
     >
       {{ rejectReason }}
     </div>
     <div
       v-if="error"
-      class="mt-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2"
+      class="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-red-300"
     >
       {{ error }}
     </div>

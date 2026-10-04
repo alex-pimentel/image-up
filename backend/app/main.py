@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 import logging
+from io import BytesIO
 from pathlib import Path
+from typing import Any
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
 
 from . import __version__
+from .auth import optional_clerk_user
 from .config import settings
 from .schemas import (
     EnhanceResponse,
@@ -19,6 +21,7 @@ from .schemas import (
     TaskStatus,
     TaskStatusResponse,
 )
+from .services.storage import get_storage
 from .services.upscaler import backend_label, is_ml_available
 from .task_store import (
     TaskStore,
@@ -41,11 +44,6 @@ app.add_middleware(
     allow_origins=list(settings.allowed_origins),
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
-)
-
-# Static results served from disk (enhanced + uploaded originals stored in same dir)
-app.mount(
-    "/api/results", StaticFiles(directory=str(settings.results_dir)), name="results"
 )
 
 store = TaskStore()
@@ -77,11 +75,11 @@ def config() -> LimitsResponse:
     )
 
 
-def _validate_image(path: Path) -> None:
+def _validate_image(data: bytes) -> None:
     from PIL import Image
 
     try:
-        with Image.open(path) as im:
+        with Image.open(BytesIO(data)) as im:
             largest = max(im.width, im.height)
     except Exception as e:  # noqa: BLE001 - any decode error becomes a 422
         raise HTTPException(
@@ -101,6 +99,7 @@ def _validate_image(path: Path) -> None:
 async def enhance(
     file: UploadFile = File(...),  # noqa: B008 - FastAPI requires the File() sentinel here
     scale: int = settings.default_scale,
+    claims: dict[str, Any] | None = Depends(optional_clerk_user),  # noqa: B008
 ) -> JSONResponse:
     if scale not in (2, 4):
         raise HTTPException(status_code=422, detail="scale must be 2 or 4")
@@ -112,36 +111,35 @@ async def enhance(
                 f"{', '.join(settings.allowed_extensions)}"
             ),
         )
+
+    # Authenticated users get a more generous limit; anonymous stays strict.
+    max_upload_mb = settings.auth_max_upload_mb if claims else settings.max_upload_mb
+
     data = await file.read()
-    if len(data) > settings.max_upload_mb * 1024 * 1024:
+    if len(data) > max_upload_mb * 1024 * 1024:
         raise HTTPException(
-            status_code=413, detail=f"File too large. Max {settings.max_upload_mb}MB."
+            status_code=413, detail=f"File too large. Max {max_upload_mb}MB."
         )
 
+    _validate_image(data)
+
     task_id = _short_id()
-    in_name = f"{task_id}{Path(file.filename or 'image').suffix.lower()}"
-    in_path = settings.uploads_dir / in_name
-    in_path.write_bytes(data)
-
-    # Validate dimensions before enqueueing
-    _validate_image(in_path)
-
-    (settings.results_dir / in_name).write_bytes(data)
-    original_url = f"/api/results/{in_name}"
+    filename = Path(file.filename or "image").name
+    storage = get_storage()
+    key = storage.save_upload(task_id, filename, data)
 
     store.create(
         task_id=task_id,
         original_filename=file.filename or "image",
-        original_path=str(in_path),
-        original_url=original_url,
+        upload_key=key,
         status=TaskStatus.PENDING,
     )
 
-    # Enqueue the Celery worker task (non-blocking)
+    # Enqueue the Celery worker task (non-blocking). Only the R2 key travels.
     enhance_task.apply_async(
         kwargs={
             "task_id": task_id,
-            "input_path": str(in_path),
+            "upload_key": key,
             "original_filename": file.filename or "image",
             "scale": scale,
         },
@@ -162,12 +160,37 @@ def status(task_id: str) -> TaskStatusResponse:
         task_id=task_id,
         status=status_from_raw(raw),
         original_filename=raw.get("original_filename") or None,
-        original_url=raw.get("original_url") or None,
+        original_url=f"/api/uploads/{task_id}" if raw.get("upload_key") else None,
         result_url=result_or_none(raw),
         elapsed_sec=elapsed_from_raw(raw),
         detail=detail_or_none(raw),
         backend=raw.get("detail") or None,
     )
+
+
+@app.get("/api/uploads/{task_id}")
+def get_upload(task_id: str):
+    """Serve the original upload: 302 to a short-lived R2 URL (or local file)."""
+    raw = store.get(task_id)
+    key = (raw or {}).get("upload_key") or ""
+    if not key:
+        raise HTTPException(
+            status_code=404, detail="Upload not found (may have expired)."
+        )
+    return get_storage().response_for(key)
+
+
+@app.get("/api/results/{filename}")
+def get_result(filename: str):
+    """Serve an enhanced result: 302 to a short-lived R2 URL (or local file)."""
+    task_id, _, _ext = filename.rpartition(".")
+    raw = store.get(task_id) if task_id else None
+    key = (raw or {}).get("result_key") or ""
+    if not key:
+        raise HTTPException(
+            status_code=404, detail="Result not found (may have expired)."
+        )
+    return get_storage().response_for(key)
 
 
 def _short_id() -> str:

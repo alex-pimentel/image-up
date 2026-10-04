@@ -6,6 +6,10 @@ imageup:* Redis keyspace, and the CELERY_RESULT_BACKEND (which writes to its
 own redis keyspace) is also namespaced via Celery's `result_path/tests` to
 avoid collisions.
 
+Uploads and results live in Cloudflare R2 (private ``tmp`` bucket, 24h
+lifecycle). The worker downloads the original from R2, upscales it to a
+temporary file, and uploads the enhanced result back to R2.
+
 Run the worker with:
     celery -A app.worker worker --loglevel=info --concurrency=1
 """
@@ -13,6 +17,7 @@ Run the worker with:
 from __future__ import annotations
 
 import logging
+import tempfile
 from pathlib import Path
 
 from celery import Celery
@@ -20,6 +25,7 @@ from kombu import Queue
 
 from .config import settings
 from .schemas import TaskStatus
+from .services.storage import get_storage
 from .services.upscaler import backend_label, upscale
 from .task_store import TaskStore
 
@@ -53,23 +59,28 @@ celery_app.conf.update(
 
 @celery_app.task(name="imageup.enhance", bind=True)
 def enhance_task(
-    self, task_id: str, input_path: str, original_filename: str, scale: int = 4
+    self, task_id: str, upload_key: str, original_filename: str, scale: int = 2
 ) -> dict:
     store = TaskStore()
     store.update(task_id, status=TaskStatus.PROCESSING.value)
 
     ext = settings.output_extension
-    out_name = Path(input_path).stem + f"_x{scale}.{ext}"
-    output_path = settings.results_dir / out_name
-
+    suffix = Path(original_filename).suffix.lower() or ".png"
     backend = backend_label()
     try:
-        upscale(Path(input_path), output_path, scale=scale)
-        result_url = f"/api/results/{out_name}"
+        storage = get_storage()
+        with tempfile.TemporaryDirectory(prefix="imageup-") as tmp:
+            in_path = Path(tmp) / f"input{suffix}"
+            out_path = Path(tmp) / f"result.{ext}"
+            storage.fetch_upload(upload_key, in_path)
+            upscale(in_path, out_path, scale=scale)
+            stored_key = storage.save_result(task_id, out_path)
+
+        result_url = f"/api/results/{task_id}.{ext}"
         store.update(
             task_id,
             status=TaskStatus.DONE.value,
-            result_path=str(output_path),
+            result_key=stored_key,
             result_url=result_url,
             detail=backend,
         )

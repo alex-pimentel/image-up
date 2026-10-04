@@ -28,7 +28,21 @@ class Settings:
     # Storage / TTL
     results_dir: Path
     uploads_dir: Path
+    storage_dir: Path
     result_ttl_sec: int
+
+    # Cloudflare R2 (private tmp bucket)
+    r2_access_key_id: str
+    r2_secret_access_key: str
+    r2_endpoint: str
+    r2_bucket_tmp: str
+    r2_presign_expiry_sec: int
+
+    # Clerk (optional auth)
+    clerk_jwks_url: str
+    clerk_issuer: str
+    clerk_audience: str
+    auth_max_upload_mb: int
 
     # Celery / Redis
     redis_url: str
@@ -67,7 +81,17 @@ class Settings:
             fallback_if_unavailable=os.getenv("FALLBACK_IF_UNAVAILABLE", "1") == "1",
             results_dir=Path(os.getenv("RESULTS_DIR", str(base / "results"))),
             uploads_dir=Path(os.getenv("UPLOADS_DIR", str(base / "uploads"))),
+            storage_dir=Path(os.getenv("STORAGE_DIR") or str(base / "storage")),
             result_ttl_sec=int(os.getenv("RESULT_TTL_SEC", "3600")),
+            r2_access_key_id=os.getenv("R2_ACCESS_KEY_ID", ""),
+            r2_secret_access_key=os.getenv("R2_SECRET_ACCESS_KEY", ""),
+            r2_endpoint=os.getenv("R2_ENDPOINT", ""),
+            r2_bucket_tmp=os.getenv("R2_BUCKET_TMP", "agenteresolve-tmp"),
+            r2_presign_expiry_sec=int(os.getenv("R2_PRESIGN_EXPIRY_SEC", "900")),
+            clerk_jwks_url=os.getenv("CLERK_JWKS_URL", ""),
+            clerk_issuer=os.getenv("CLERK_ISSUER", ""),
+            clerk_audience=os.getenv("CLERK_AUDIENCE", ""),
+            auth_max_upload_mb=int(os.getenv("AUTH_MAX_UPLOAD_MB", "16")),
             redis_url=os.getenv("REDIS_URL", "redis://localhost:6379/0"),
             celery_broker_url=os.getenv(
                 "CELERY_BROKER_URL", os.getenv("REDIS_URL", "redis://localhost:6379/0")
@@ -85,6 +109,21 @@ class Settings:
     def output_extension(self) -> str:
         return self.output_format.replace("jpeg", "jpg")
 
+    @property
+    def r2_enabled(self) -> bool:
+        return all(
+            (
+                self.r2_access_key_id,
+                self.r2_secret_access_key,
+                self.r2_endpoint,
+                self.r2_bucket_tmp,
+            )
+        )
+
+    @property
+    def clerk_enabled(self) -> bool:
+        return bool(self.clerk_jwks_url)
+
 
 settings = Settings.from_env()
 if settings.output_format not in ("webp", "jpg", "png"):
@@ -93,3 +132,4 @@ if settings.output_format not in ("webp", "jpg", "png"):
     )
 settings.results_dir.mkdir(parents=True, exist_ok=True)
 settings.uploads_dir.mkdir(parents=True, exist_ok=True)
+settings.storage_dir.mkdir(parents=True, exist_ok=True)

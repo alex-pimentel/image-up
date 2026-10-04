@@ -48,18 +48,29 @@ def api_client(fake_redis, monkeypatch, tmp_path):
     """A TestClient with isolated storage + a mocked Celery enqueue."""
     from app import config, task_store, worker
     from app import main as main_module
+    from app.services import storage as storage_module
     from app.services import upscaler
 
     uploads = tmp_path / "uploads"
     results = tmp_path / "results"
+    storage_dir = tmp_path / "storage"
     uploads.mkdir(parents=True, exist_ok=True)
     results.mkdir(parents=True, exist_ok=True)
+    storage_dir.mkdir(parents=True, exist_ok=True)
 
     new_settings = dataclasses.replace(
-        config.settings, uploads_dir=uploads, results_dir=results
+        config.settings,
+        uploads_dir=uploads,
+        results_dir=results,
+        storage_dir=storage_dir,
+        r2_access_key_id="",
+        r2_secret_access_key="",
+        r2_endpoint="",
     )
-    for module in (main_module, worker, upscaler, task_store, config):
+    for module in (main_module, worker, upscaler, task_store, config, storage_module):
         monkeypatch.setattr(module, "settings", new_settings)
+
+    storage_module.reset_storage()
 
     captured: list[dict] = []
 

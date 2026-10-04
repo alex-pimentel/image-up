@@ -29,18 +29,28 @@ API docs at http://localhost:8000/docs.
 | GET    | `/api/config`            | Upload limits (max upload MB, max input px, etc.)     |
 | POST   | `/api/enhance`           | `multipart` upload → returns `{task_id, status}`      |
 | GET    | `/api/status/{task_id}`  | Poll task status (result URL once `done`)              |
-| GET    | `/api/results/{name}`    | Static result image                                    |
+| GET    | `/api/uploads/{task_id}` | Original upload (302 → short-lived presigned R2 GET)   |
+| GET    | `/api/results/{file}`    | Enhanced result (302 → short-lived presigned R2 GET)   |
 
 ## Architecture
 
 ```
-FastAPI (web)  ──enqueue──>  Celery broker (Redis, imageup:* keys)
-       │                              │
-       │                              v
-       │                       Celery worker ──> Real-ESRGAN ──> results/
+FastAPI (web)  ──put upload──> R2 tmp/uploads/imageup/{task_id}/…
        │
-       └──> Redis hash: imageup:task:{id}   (status, urls, elapsed, …)
+       └──enqueue──> Celery broker (Redis, imageup:* keys)
+                              │
+                              v
+                       Celery worker ──get upload──> Real-ESRGAN
+                              │                        │
+                              └──put result──> R2 tmp/results/imageup/{task_id}/result.webp
+
+       Redis hash: imageup:task:{id}   (status, keys, urls, elapsed, …)
 ```
+
+Results and uploads live in the private `agenteresolve-tmp` bucket (24h
+lifecycle). Downloads are short-lived presigned GETs issued by the API.
+Without `R2_*` credentials the service falls back to local disk under
+`storage/` so local dev and CI still work end-to-end.
 
 ### Key isolation
 
@@ -85,6 +95,11 @@ See `.env.example`. Key variables:
 - `OUTPUT_QUALITY` — JPEG/WEBP quality for saved results (default 90).
 - `REDIS_URL`, `REDIS_KEY_PREFIX` — broker + key namespace.
 - `USE_GPU`, `MODEL_NAME`, `ENABLE_ML`, `FALLBACK_IF_UNAVAILABLE`.
+- `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ENDPOINT`, `R2_BUCKET_TMP`,
+  `R2_PRESIGN_EXPIRY_SEC` — Cloudflare R2 storage (leave blank for local disk).
+- `CLERK_JWKS_URL`, `CLERK_ISSUER`, `CLERK_AUDIENCE` — optional Clerk JWT
+  verification on `POST /api/enhance`. Anonymous requests are allowed with a
+  stricter `MAX_UPLOAD_MB`; verified users get `AUTH_MAX_UPLOAD_MB`.
 
 ## Quality gates
 
@@ -104,3 +119,13 @@ Tests use `fakeredis` and a mocked Celery enqueue, so **no Redis broker is
 required** to run the suite. Coverage floor: **90%** (currently ~99%).
 ML-only paths (`app/services/upscaler.py`, `app/entrypoint.py`) are excluded
 from coverage because they require `torch` and a container runtime.
+
+## Tests
+
+```bash
+pip install pytest "PyJWT[crypto]" boto3
+pytest tests/ -v
+```
+
+The suite mocks the S3 client (R2 helper) and verifies JWTs against a locally
+generated RSA keypair (Clerk verifier) — no network or cloud credentials needed.

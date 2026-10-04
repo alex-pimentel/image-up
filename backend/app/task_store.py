@@ -33,8 +33,7 @@ class TaskStore:
         self,
         task_id: str,
         original_filename: str,
-        original_path: str,
-        original_url: str | None = None,
+        upload_key: str,
         status: TaskStatus = TaskStatus.PENDING,
     ) -> None:
         import time
@@ -43,9 +42,8 @@ class TaskStore:
             "task_id": task_id,
             "status": status.value,
             "original_filename": original_filename,
-            "original_path": original_path,
-            "original_url": original_url or "",
-            "result_path": "",
+            "upload_key": upload_key,
+            "result_key": "",
             "result_url": "",
             "detail": "",
             "started_at": str(time.time()),
@@ -67,7 +65,16 @@ class TaskStore:
         for k, v in changes.items():
             mapping[k] = "" if v is None else str(v)
         self.redis.hset(self._key(task_id), mapping=mapping)
-        if TaskStatus(changes.get("status", "")) in (TaskStatus.DONE, TaskStatus.ERROR):
+
+        status_value = changes.get("status")
+        try:
+            is_final = status_value is not None and TaskStatus(str(status_value)) in (
+                TaskStatus.DONE,
+                TaskStatus.ERROR,
+            )
+        except ValueError:
+            is_final = False
+        if is_final:
             import time
 
             self.redis.hset(self._key(task_id), "finished_at", str(time.time()))

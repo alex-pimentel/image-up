@@ -25,8 +25,7 @@ def test_create_and_get_roundtrip(store):
     store.create(
         task_id="t1",
         original_filename="photo.png",
-        original_path="/tmp/photo.png",
-        original_url="/api/results/photo.png",
+        upload_key="tmp/uploads/imageup/t1/photo.png",
         status=TaskStatus.PENDING,
     )
 
@@ -35,7 +34,7 @@ def test_create_and_get_roundtrip(store):
     assert raw is not None
     assert raw["task_id"] == "t1"
     assert raw["status"] == "pending"
-    assert raw["original_url"] == "/api/results/photo.png"
+    assert raw["upload_key"] == "tmp/uploads/imageup/t1/photo.png"
 
 
 def test_get_missing_returns_none(store):

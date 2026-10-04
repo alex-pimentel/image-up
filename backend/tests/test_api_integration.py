@@ -60,7 +60,7 @@ def test_enhance_then_status_reflects_task(api_client):
     assert body["task_id"] == task_id
     assert body["status"] == "pending"
     assert body["original_filename"] == "photo.png"
-    assert body["original_url"].endswith(".png")
+    assert body["original_url"] == f"/api/uploads/{task_id}"
 
 
 def test_status_unknown_task_returns_404(api_client):
@@ -109,6 +109,54 @@ def test_enhance_rejects_corrupt_image(api_client):
     )
 
     assert resp.status_code == 422
+
+
+def test_upload_endpoint_serves_stored_file(api_client):
+    enhance = api_client.post(
+        "/api/enhance?scale=2",
+        files={"file": ("photo.png", make_png_bytes(), "image/png")},
+    )
+    task_id = enhance.json()["task_id"]
+
+    resp = api_client.get(f"/api/uploads/{task_id}")
+
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("image/")
+
+
+def test_upload_endpoint_unknown_returns_404(api_client):
+    resp = api_client.get("/api/uploads/does-not-exist")
+
+    assert resp.status_code == 404
+
+
+def test_result_endpoint_serves_stored_file(api_client, tmp_path):
+    from app import main as main_module
+    from app.services.storage import get_storage
+
+    src = tmp_path / "result.webp"
+    src.write_bytes(b"enhanced-bytes")
+    key = get_storage().save_result("restask", src)
+
+    main_module.store.create(
+        "restask",
+        "photo.png",
+        "tmp/uploads/imageup/restask/photo.png",
+    )
+    main_module.store.update(
+        "restask", result_key=key, result_url="/api/results/restask.webp"
+    )
+
+    resp = api_client.get("/api/results/restask.webp")
+
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("image/")
+
+
+def test_result_endpoint_unknown_returns_404(api_client):
+    resp = api_client.get("/api/results/missing.webp")
+
+    assert resp.status_code == 404
 
 
 def test_enhance_rejects_file_over_size_limit(api_client, monkeypatch):
