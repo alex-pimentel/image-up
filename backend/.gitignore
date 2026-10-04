@@ -3,8 +3,14 @@ __pycache__/
 venv/
 .env
 *.pyc
-results/*
-uploads/*
-storage/*
+results/
+uploads/
+storage/
 models/*.pth
 !models/.gitkeep
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+coverage.xml
+uv.lock

@@ -8,6 +8,7 @@ Key convention (spec C §7):
     tmp/uploads/{service}/{task_id}/{filename}
     tmp/results/{service}/{task_id}/{filename}
 """
+
 from __future__ import annotations
 
 import logging

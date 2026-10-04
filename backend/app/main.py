@@ -1,4 +1,5 @@
 """FastAPI entry point."""
+
 from __future__ import annotations
 
 import logging
@@ -31,7 +32,9 @@ from .task_store import (
 )
 from .worker import enhance_task
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="ImageUp API", version=__version__)
@@ -79,11 +82,16 @@ def _validate_image(data: bytes) -> None:
         with Image.open(BytesIO(data)) as im:
             largest = max(im.width, im.height)
     except Exception as e:  # noqa: BLE001 - any decode error becomes a 422
-        raise HTTPException(status_code=422, detail=f"Invalid or unreadable image: {e}")
+        raise HTTPException(
+            status_code=422, detail=f"Invalid or unreadable image: {e}"
+        ) from e
     if largest > settings.max_input_px:
         raise HTTPException(
             status_code=422,
-            detail=f"Input image too large: {largest}px. Maximum largest side is {settings.max_input_px}px.",
+            detail=(
+                f"Input image too large: {largest}px. "
+                f"Maximum largest side is {settings.max_input_px}px."
+            ),
         )
 
 
@@ -96,14 +104,22 @@ async def enhance(
     if scale not in (2, 4):
         raise HTTPException(status_code=422, detail="scale must be 2 or 4")
     if not _ext_ok(file.filename or ""):
-        raise HTTPException(status_code=415, detail=f"Unsupported file type. Allowed: {', '.join(settings.allowed_extensions)}")
+        raise HTTPException(
+            status_code=415,
+            detail=(
+                "Unsupported file type. Allowed: "
+                f"{', '.join(settings.allowed_extensions)}"
+            ),
+        )
 
     # Authenticated users get a more generous limit; anonymous stays strict.
     max_upload_mb = settings.auth_max_upload_mb if claims else settings.max_upload_mb
 
     data = await file.read()
     if len(data) > max_upload_mb * 1024 * 1024:
-        raise HTTPException(status_code=413, detail=f"File too large. Max {max_upload_mb}MB.")
+        raise HTTPException(
+            status_code=413, detail=f"File too large. Max {max_upload_mb}MB."
+        )
 
     _validate_image(data)
 
@@ -137,7 +153,9 @@ async def enhance(
 def status(task_id: str) -> TaskStatusResponse:
     raw = store.get(task_id)
     if raw is None:
-        raise HTTPException(status_code=404, detail="Task not found (may have expired).")
+        raise HTTPException(
+            status_code=404, detail="Task not found (may have expired)."
+        )
     return TaskStatusResponse(
         task_id=task_id,
         status=status_from_raw(raw),
@@ -152,22 +170,26 @@ def status(task_id: str) -> TaskStatusResponse:
 
 @app.get("/api/uploads/{task_id}")
 def get_upload(task_id: str):
-    """Serve the original upload: 302 to a short-lived presigned R2 URL (or the local file)."""
+    """Serve the original upload: 302 to a short-lived R2 URL (or local file)."""
     raw = store.get(task_id)
     key = (raw or {}).get("upload_key") or ""
     if not key:
-        raise HTTPException(status_code=404, detail="Upload not found (may have expired).")
+        raise HTTPException(
+            status_code=404, detail="Upload not found (may have expired)."
+        )
     return get_storage().response_for(key)
 
 
 @app.get("/api/results/{filename}")
 def get_result(filename: str):
-    """Serve an enhanced result: 302 to a short-lived presigned R2 URL (or the local file)."""
+    """Serve an enhanced result: 302 to a short-lived R2 URL (or local file)."""
     task_id, _, _ext = filename.rpartition(".")
     raw = store.get(task_id) if task_id else None
     key = (raw or {}).get("result_key") or ""
     if not key:
-        raise HTTPException(status_code=404, detail="Result not found (may have expired).")
+        raise HTTPException(
+            status_code=404, detail="Result not found (may have expired)."
+        )
     return get_storage().response_for(key)
 
 

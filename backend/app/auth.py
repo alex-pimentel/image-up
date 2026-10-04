@@ -5,6 +5,7 @@ and no secret key required for read-only verification. Authentication is
 optional: a missing token means "anonymous" (stricter limits); a malformed or
 invalid token is rejected with 401.
 """
+
 from __future__ import annotations
 
 import logging
@@ -90,7 +91,9 @@ def get_verifier() -> ClerkVerifier:
     return _verifier
 
 
-async def optional_clerk_user(authorization: str | None = Header(default=None)) -> dict[str, Any] | None:
+async def optional_clerk_user(
+    authorization: str | None = Header(default=None),
+) -> dict[str, Any] | None:
     """FastAPI dependency returning verified Clerk claims, or ``None`` for anonymous."""
     if not authorization:
         return None

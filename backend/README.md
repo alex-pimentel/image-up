@@ -63,8 +63,16 @@ for each project sharing the broker.
 
 ## Enabling real ML
 
-The `torch` / `realesrgan` / `basicsr` packages are commented out in
-`requirements.txt` because they are large. To run the actual model on a VPS:
+The `torch` / `realesrgan` / `basicsr` packages are pulled in by
+`requirements.txt` (with the CPU index via `--extra-index-url`). To install
+only the lightweight runtime (no ML) and the quality tooling, use
+`requirements-dev.txt`, which is based on `requirements-audit.txt`:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+To install the ML stack manually:
 
 ```bash
 # CPU build (smaller)
@@ -92,6 +100,25 @@ See `.env.example`. Key variables:
 - `CLERK_JWKS_URL`, `CLERK_ISSUER`, `CLERK_AUDIENCE` — optional Clerk JWT
   verification on `POST /api/enhance`. Anonymous requests are allowed with a
   stricter `MAX_UPLOAD_MB`; verified users get `AUTH_MAX_UPLOAD_MB`.
+
+## Quality gates
+
+Configured in `pyproject.toml`. Run all locally:
+
+```bash
+pip install -r requirements-dev.txt
+ruff check .                  # lint
+ruff format --check .         # format
+mypy .                        # static analysis
+bandit -c pyproject.toml -r . -x ./.venv,./tests   # SAST
+pytest --cov=. --cov-report=term-missing --cov-fail-under=90
+pip-audit                     # dependency audit
+```
+
+Tests use `fakeredis` and a mocked Celery enqueue, so **no Redis broker is
+required** to run the suite. Coverage floor: **90%** (currently ~99%).
+ML-only paths (`app/services/upscaler.py`, `app/entrypoint.py`) are excluded
+from coverage because they require `torch` and a container runtime.
 
 ## Tests
 

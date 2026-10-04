@@ -23,11 +23,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div
-    v-show="clerkEnabled"
-    ref="target"
-    class="flex min-h-8 items-center"
-  />
+  <div v-show="clerkEnabled" ref="target" class="flex min-h-8 items-center" />
   <a
     v-if="!clerkEnabled || !ready"
     href="https://agenteresolve.com.br"

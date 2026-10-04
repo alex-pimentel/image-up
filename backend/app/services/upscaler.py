@@ -4,8 +4,10 @@ The ML backend is imported lazily so the service can still run (in fallback
 mode) on machines without torch / realesrgan installed. This keeps the API
 contract working end-to-end for local dev, CI, and small VPSes.
 """
+
 from __future__ import annotations
 
+import contextlib
 import logging
 from pathlib import Path
 
@@ -33,9 +35,23 @@ class MLBackend:
 
         # Pick a model architecture based on the configured name.
         if model_name == "RealESRGAN_x4plus_anime_6B":
-            model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=6, num_grow_ch=32, scale=4)
+            model = RRDBNet(
+                num_in_ch=3,
+                num_out_ch=3,
+                num_feat=64,
+                num_block=6,
+                num_grow_ch=32,
+                scale=4,
+            )
         else:  # default RealESRGAN_x4plus
-            model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=4)
+            model = RRDBNet(
+                num_in_ch=3,
+                num_out_ch=3,
+                num_feat=64,
+                num_block=23,
+                num_grow_ch=32,
+                scale=4,
+            )
 
         models_dir = Path(__file__).resolve().parent.parent.parent / "models"
         candidate = str(models_dir / f"{model_name}.pth")
@@ -69,12 +85,13 @@ def is_ml_available() -> bool:
     if not settings.enable_ml:
         _ml_available = False
         return _ml_available
+    _ml_available = True
     try:
         import basicsr  # noqa: F401
         import realesrgan  # noqa: F401
         import torch  # noqa: F401
-        _ml_available = True
-    except Exception as e:  # pragma: no cover - environment dependent  # noqa: BLE001 - import probe
+    except Exception as e:  # noqa: BLE001 - import probe
+        # pragma: no cover - environment dependent
         logger.warning("ML backend unavailable, using fallback: %s", e)
         _ml_available = False
     return _ml_available
@@ -92,7 +109,7 @@ def backend_label() -> str:
 
 
 def upscale(input_path: Path, output_path: Path, scale: int = 4) -> Image.Image:
-    """Upscale the image at input_path and save to output_path. Returns the result PIL image."""
+    """Upscale input_path and save to output_path. Returns the result PIL image."""
     from ..utils.image import open_image
 
     img = open_image(input_path)
@@ -122,8 +139,6 @@ def _fallback_upscale(img: Image.Image, scale: int) -> Image.Image:
     new_size = (img.width * scale, img.height * scale)
     up = img.resize(new_size, Image.Resampling.LANCZOS)
     # Unsharp mask: (radius, percent, threshold). Mild but noticeable.
-    try:
+    with contextlib.suppress(Exception):
         up = up.filter(_UNSHARP)
-    except Exception:  # noqa: BLE001, S110  # nosec - unsharp mask is a nice-to-have enhancement
-        pass
     return up

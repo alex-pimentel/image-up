@@ -1,4 +1,5 @@
 """Unit tests for the R2 storage helper (boto3 client mocked, no network)."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -20,17 +21,30 @@ class FakeS3Client:
 
     def upload_file(self, filename, bucket, key, ExtraArgs=None):
         self.calls.append(
-            ("upload_file", {"Filename": filename, "Bucket": bucket, "Key": key, "ExtraArgs": ExtraArgs})
+            (
+                "upload_file",
+                {
+                    "Filename": filename,
+                    "Bucket": bucket,
+                    "Key": key,
+                    "ExtraArgs": ExtraArgs,
+                },
+            )
         )
         self.objects[key] = Path(filename).read_bytes()
 
     def download_file(self, bucket, key, filename):
-        self.calls.append(("download_file", {"Bucket": bucket, "Key": key, "Filename": filename}))
+        self.calls.append(
+            ("download_file", {"Bucket": bucket, "Key": key, "Filename": filename})
+        )
         Path(filename).write_bytes(self.objects[key])
 
     def generate_presigned_url(self, operation, Params=None, ExpiresIn=None):
         self.calls.append(
-            ("generate_presigned_url", {"operation": operation, "Params": Params, "ExpiresIn": ExpiresIn})
+            (
+                "generate_presigned_url",
+                {"operation": operation, "Params": Params, "ExpiresIn": ExpiresIn},
+            )
         )
         return f"https://r2.example/{Params['Key']}?sig=abc"
 
@@ -68,7 +82,9 @@ def test_key_conventions() -> None:
 
 def test_put_bytes_uses_bucket_and_content_type() -> None:
     storage, client = make_storage()
-    storage.put_bytes("tmp/uploads/imageup/abc/photo.png", b"data", content_type="image/png")
+    storage.put_bytes(
+        "tmp/uploads/imageup/abc/photo.png", b"data", content_type="image/png"
+    )
     op, kwargs = client.calls[-1]
     assert op == "put_object"
     assert kwargs == {
@@ -90,7 +106,9 @@ def test_put_file_passes_extra_args(tmp_path: Path) -> None:
     src = tmp_path / "result.webp"
     src.write_bytes(b"webp-bytes")
     storage, client = make_storage()
-    storage.put_file("tmp/results/imageup/abc/result.webp", src, content_type="image/webp")
+    storage.put_file(
+        "tmp/results/imageup/abc/result.webp", src, content_type="image/webp"
+    )
     op, kwargs = client.calls[-1]
     assert op == "upload_file"
     assert kwargs["Key"] == "tmp/results/imageup/abc/result.webp"
@@ -111,7 +129,10 @@ def test_presigned_get_url_is_short_lived() -> None:
     op, kwargs = client.calls[-1]
     assert op == "generate_presigned_url"
     assert kwargs["operation"] == "get_object"
-    assert kwargs["Params"] == {"Bucket": BUCKET, "Key": "tmp/results/imageup/abc/result.webp"}
+    assert kwargs["Params"] == {
+        "Bucket": BUCKET,
+        "Key": "tmp/results/imageup/abc/result.webp",
+    }
     assert kwargs["ExpiresIn"] == 120
     assert url.startswith("https://")
 

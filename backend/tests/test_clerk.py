@@ -1,4 +1,5 @@
 """Unit tests for the Clerk JWT verifier (local JWKS verification, no network)."""
+
 from __future__ import annotations
 
 import time
@@ -39,7 +40,9 @@ def make_token(private, **overrides) -> str:
         "exp": now + 60,
     }
     payload.update(overrides)
-    return jwt.encode(payload, private, algorithm="RS256", headers={"kid": "test-key", "alg": "RS256"})
+    return jwt.encode(
+        payload, private, algorithm="RS256", headers={"kid": "test-key", "alg": "RS256"}
+    )
 
 
 def make_verifier(public) -> ClerkVerifier:
@@ -73,7 +76,9 @@ def test_verify_rejects_wrong_audience(keypair) -> None:
 def test_verify_rejects_wrong_issuer(keypair) -> None:
     private, public = keypair
     with pytest.raises(ClerkAuthError):
-        make_verifier(public).verify(make_token(private, iss="https://evil.example.com"))
+        make_verifier(public).verify(
+            make_token(private, iss="https://evil.example.com")
+        )
 
 
 def test_verify_rejects_bad_signature(keypair) -> None:

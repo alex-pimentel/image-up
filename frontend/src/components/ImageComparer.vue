@@ -53,7 +53,7 @@ onBeforeUnmount(() => {
       class="block w-full"
       draggable="false"
       @pointerdown.stop
-    >
+    />
     <!-- Before (full-size, clipped via clip-path so it stays put) -->
     <img
       :src="props.beforeUrl"
@@ -62,11 +62,15 @@ onBeforeUnmount(() => {
       :style="{ clipPath: `inset(0 ${100 - pos}% 0 0)` }"
       draggable="false"
       @pointerdown.stop
+    />
+    <span
+      class="absolute top-2 left-2 text-xs font-semibold bg-black/60 text-white px-2 py-1 rounded pointer-events-none"
     >
-    <span class="absolute top-2 left-2 text-xs font-semibold bg-black/60 text-white px-2 py-1 rounded pointer-events-none">
       {{ props.beforeLabel || 'Before' }}
     </span>
-    <span class="absolute top-2 right-2 text-xs font-semibold bg-black/60 text-white px-2 py-1 rounded pointer-events-none">
+    <span
+      class="absolute top-2 right-2 text-xs font-semibold bg-black/60 text-white px-2 py-1 rounded pointer-events-none"
+    >
       {{ props.afterLabel || 'After' }}
     </span>
 

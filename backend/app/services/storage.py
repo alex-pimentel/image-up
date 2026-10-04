@@ -4,6 +4,7 @@ Production uses Cloudflare R2 (private ``tmp`` bucket, 24h lifecycle). When the
 ``R2_*`` credentials are absent (local dev, CI) it transparently falls back to
 local disk so the end-to-end flow keeps working without cloud access.
 """
+
 from __future__ import annotations
 
 import logging
@@ -85,7 +86,9 @@ class LocalStorageAdapter:
     def response_for(self, key: str) -> Response:
         path = self._path(key)
         if not path.exists():
-            raise HTTPException(status_code=404, detail="Object not found (may have expired).")
+            raise HTTPException(
+                status_code=404, detail="Object not found (may have expired)."
+            )
         return FileResponse(path, media_type=content_type_for(key))
 
 
@@ -108,7 +111,9 @@ def get_storage() -> Storage:
                 )
             )
         else:
-            logger.warning("R2 is not configured; using local disk storage (development fallback)")
+            logger.warning(
+                "R2 is not configured; using local disk storage (development fallback)"
+            )
             _storage = LocalStorageAdapter(settings.storage_dir)
     return _storage
 

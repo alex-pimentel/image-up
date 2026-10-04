@@ -1,6 +1,6 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 /* Token-only git subdirectory dependency — see @agenteresolve/ui-tokens in package.json. */
-@import "@agenteresolve/ui-tokens/globals.css";
+@import '@agenteresolve/ui-tokens/globals.css';
 
 /*
  * ImageUp brand scale, aligned with the shared Agenteresolve palette.

@@ -69,3 +69,23 @@ The current preview build restricts the **largest input side to 1000px**
 (fetched from `GET /api/config`, server-configurable via `MAX_INPUT_PX`).
 A banner and inline rejection message inform the user. Larger limits are
 available to authenticated users server-side (`AUTH_MAX_UPLOAD_MB`).
+
+## Quality gates
+
+Scripts mirror the Agenteresolve quality standard:
+
+```bash
+pnpm lint          # ESLint
+pnpm format        # Prettier (write)
+pnpm format:check  # Prettier (check)
+pnpm types         # vue-tsc --noEmit
+pnpm test          # Vitest
+pnpm test:coverage # Vitest + v8 coverage (floor 60%)
+pnpm build         # vue-tsc + vite build
+pnpm audit --audit-level=high   # dependency audit
+```
+
+Tests use **Vitest + @vue/test-utils** (jsdom). Coverage thresholds are
+enforced in `vitest.config.ts` (currently ~92%). Prettier is the formatter
+(`.prettierrc.json`); ESLint is configured with `eslint-config-prettier` so
+the two don't fight.

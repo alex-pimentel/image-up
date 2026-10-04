@@ -73,7 +73,9 @@ function onClick() {
 <template>
   <div
     class="upload-zone cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-colors"
-    :class="dragOver ? 'border-brand bg-brand/10' : 'border-border bg-surface hover:border-brand/60'"
+    :class="
+      dragOver ? 'border-brand bg-brand/10' : 'border-border bg-surface hover:border-brand/60'
+    "
     @dragover.prevent="dragOver = true"
     @dragleave.prevent="dragOver = false"
     @drop.prevent="onDrop"
@@ -86,16 +88,10 @@ function onClick() {
       accept="image/*"
       :disabled="busy"
       @change="(e) => handleFiles((e.target as HTMLInputElement).files)"
-    >
-    <div class="text-5xl mb-3">
-      🖼️
-    </div>
-    <p class="text-lg font-semibold text-foreground">
-      Drag &amp; drop an image here
-    </p>
-    <p class="mt-1 text-sm text-muted-foreground">
-      or click to choose a file
-    </p>
+    />
+    <div class="text-5xl mb-3">🖼️</div>
+    <p class="text-lg font-semibold text-foreground">Drag &amp; drop an image here</p>
+    <p class="mt-1 text-sm text-muted-foreground">or click to choose a file</p>
     <div class="mt-4 space-y-1 text-xs text-muted-foreground">
       <p>Allowed: {{ allowed().join(', ') }}</p>
     </div>
