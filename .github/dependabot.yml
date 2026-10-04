@@ -1,0 +1,35 @@
+# Dependabot — Agenteresolve image-up monorepo.
+version: 2
+updates:
+  # Frontend (pnpm)
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      frontend-dev:
+        dependency-type: development
+      frontend-prod:
+        dependency-type: production
+
+  # Backend (pip)
+  - package-ecosystem: pip
+    directory: /backend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+
+  # Container images
+  - package-ecosystem: docker
+    directory: /backend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5

@@ -1,12 +1,13 @@
 """Pydantic schemas for API request/response bodies."""
+
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel
 
 
-class TaskStatus(str, Enum):
+class TaskStatus(StrEnum):
     PENDING = "pending"
     PROCESSING = "processing"
     DONE = "done"

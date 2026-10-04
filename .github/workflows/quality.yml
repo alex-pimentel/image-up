@@ -1,0 +1,66 @@
+name: Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  api:
+    uses: alex-pimentel/agenteresolve-ci/.github/workflows/python-quality.yml@main
+    with:
+      working_directory: backend
+      coverage: true
+      coverage_threshold: 90
+
+  web:
+    uses: alex-pimentel/agenteresolve-ci/.github/workflows/node-quality.yml@main
+    with:
+      working_directory: frontend
+      package_manager: pnpm
+      coverage: true
+
+  security:
+    permissions:
+      contents: read
+      security-events: write
+    uses: alex-pimentel/agenteresolve-ci/.github/workflows/security-scan.yml@main
+
+  docker:
+    permissions:
+      contents: read
+      security-events: write
+    uses: alex-pimentel/agenteresolve-ci/.github/workflows/docker-build-scan.yml@main
+    with:
+      context: backend
+      image_name: image-up-api
+
+  deploy-backend:
+    needs: [api, web, security, docker]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger backend deploy
+        run: curl -fsS "$DEPLOY_BACKEND_WEBHOOK"
+        env:
+          DEPLOY_BACKEND_WEBHOOK: ${{ secrets.DEPLOY_BACKEND_WEBHOOK }}
+
+  deploy-worker:
+    needs: [api, web, security, docker]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger worker deploy
+        run: curl -fsS "$DEPLOY_WORKER_WEBHOOK"
+        env:
+          DEPLOY_WORKER_WEBHOOK: ${{ secrets.DEPLOY_WORKER_WEBHOOK }}
+
+  deploy-pages:
+    needs: [api, web, security, docker]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit

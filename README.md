@@ -17,11 +17,8 @@
   </p>
 
   <p>
-    <a href="https://github.com/alex-pimentel/image-up/actions/workflows/ci.yml"><img src="https://github.com/alex-pimentel/image-up/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
-    <a href="https://github.com/alex-pimentel/image-up/actions/workflows/lint.yml"><img src="https://github.com/alex-pimentel/image-up/actions/workflows/lint.yml/badge.svg?branch=main" alt="Lint"></a>
-    <a href="https://github.com/alex-pimentel/image-up/actions/workflows/test.yml"><img src="https://github.com/alex-pimentel/image-up/actions/workflows/test.yml/badge.svg?branch=main" alt="Test"></a>
-    <a href="https://github.com/alex-pimentel/image-up/actions/workflows/security.yml"><img src="https://github.com/alex-pimentel/image-up/actions/workflows/security.yml/badge.svg?branch=main" alt="Security"></a>
-    <a href="https://github.com/alex-pimentel/image-up/actions/workflows/build.yml"><img src="https://github.com/alex-pimentel/image-up/actions/workflows/build.yml/badge.svg?branch=main" alt="Build"></a>
+    <a href="https://github.com/alex-pimentel/image-up/actions/workflows/quality.yml"><img src="https://github.com/alex-pimentel/image-up/actions/workflows/quality.yml/badge.svg?branch=main" alt="Quality"></a>
+    <a href="https://github.com/alex-pimentel/image-up/actions/workflows/codeql.yml"><img src="https://github.com/alex-pimentel/image-up/actions/workflows/codeql.yml/badge.svg?branch=main" alt="CodeQL"></a>
     <a href="https://github.com/alex-pimentel/image-up/actions/workflows/deploy.yml"><img src="https://github.com/alex-pimentel/image-up/actions/workflows/deploy.yml/badge.svg?branch=main" alt="Deploy"></a>
   </p>
 </div>

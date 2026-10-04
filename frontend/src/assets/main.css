@@ -6,13 +6,20 @@
   color-scheme: light dark;
 }
 
-html, body, #app {
+html,
+body,
+#app {
   height: 100%;
   margin: 0;
 }
 
 body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
   @apply bg-gradient-to-br from-slate-50 to-slate-100 text-slate-800 antialiased;
   min-height: 100vh;
 }

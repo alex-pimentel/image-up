@@ -1,4 +1,5 @@
 """Image helpers: format detection, dimension checks, resizing."""
+
 from __future__ import annotations
 
 from pathlib import Path

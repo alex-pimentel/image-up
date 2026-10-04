@@ -91,17 +91,10 @@ onBeforeUnmount(() => stopPolling?.())
     <header class="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-10">
       <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <img
-            src="/logo_agenteresolve.png"
-            alt="AgenteResolve"
-            class="h-8 w-auto"
-          >
+          <img src="/logo_agenteresolve.png" alt="AgenteResolve" class="h-8 w-auto" />
           <span class="font-semibold text-lg text-slate-900">ImageUp</span>
         </div>
-        <div
-          v-if="health"
-          class="text-xs text-slate-500 flex items-center gap-2"
-        >
+        <div v-if="health" class="text-xs text-slate-500 flex items-center gap-2">
           <span
             class="inline-block w-2 h-2 rounded-full"
             :class="health.ml_available ? 'bg-green-500' : 'bg-amber-500'"
@@ -117,8 +110,8 @@ onBeforeUnmount(() => stopPolling?.())
           Enhance &amp; upscale your images with AI
         </h1>
         <p class="mt-2 text-slate-700">
-          Real-ESRGAN upscaling in your browser. Upload a photo, our worker
-          enhances it, and you get a side-by-side before/after comparison.
+          Real-ESRGAN upscaling in your browser. Upload a photo, our worker enhances it, and you get
+          a side-by-side before/after comparison.
         </p>
       </section>
 
@@ -137,16 +130,16 @@ onBeforeUnmount(() => stopPolling?.())
         </div>
       </section>
 
-      <section
-        v-if="busy || status"
-        class="max-w-2xl mx-auto"
-      >
+      <section v-if="busy || status" class="max-w-2xl mx-auto">
         <TaskProgress
           :progress-label="
-            status?.status === 'pending' ? 'Queued — waiting for a worker…' :
-            status?.status === 'processing' ? 'Enhancing image…' :
-            status?.status === 'error' ? 'Failed' :
-            'Done'
+            status?.status === 'pending'
+              ? 'Queued — waiting for a worker…'
+              : status?.status === 'processing'
+                ? 'Enhancing image…'
+                : status?.status === 'error'
+                  ? 'Failed'
+                  : 'Done'
           "
           :running="busy"
           :elapsed="status?.elapsed_sec ?? null"
@@ -154,23 +147,16 @@ onBeforeUnmount(() => stopPolling?.())
           :limits="limits"
         />
         <!-- result-notice contact prompt -->
-        <div
-          v-if="limits && resultUrl"
-          class="mt-3 text-sm text-slate-500 text-center"
-        >
-          Output limited to {{ limits.max_input_px * 4 }}×{{ limits.max_input_px * 4 }}px.
-          Need higher resolution?
-          <a
-            :href="CONTACT_EMAIL"
-            class="text-blue-500 hover:text-blue-600 underline"
-          >Contact us</a>
+        <div v-if="limits && resultUrl" class="mt-3 text-sm text-slate-500 text-center">
+          Output limited to {{ limits.max_input_px * 4 }}×{{ limits.max_input_px * 4 }}px. Need
+          higher resolution?
+          <a :href="CONTACT_EMAIL" class="text-blue-500 hover:text-blue-600 underline"
+            >Contact us</a
+          >
         </div>
       </section>
 
-      <section
-        v-if="resultUrl && originalUrl"
-        class="max-w-3xl mx-auto space-y-3"
-      >
+      <section v-if="resultUrl && originalUrl" class="max-w-3xl mx-auto space-y-3">
         <ImageComparer
           :before-url="originalUrl"
           :after-url="resultUrl"
@@ -196,23 +182,13 @@ onBeforeUnmount(() => stopPolling?.())
         </div>
       </section>
 
-      <section
-        v-else
-        class="max-w-2xl mx-auto"
-      >
-        <UploadZone
-          :limits="limits"
-          :busy="busy"
-          :error="error"
-          @select="onSelect"
-        />
+      <section v-else class="max-w-2xl mx-auto">
+        <UploadZone :limits="limits" :busy="busy" :error="error" @select="onSelect" />
       </section>
 
       <!-- Contact section -->
       <section class="max-w-2xl mx-auto bg-white rounded-xl shadow-sm p-6 text-center">
-        <h2 class="text-xl font-bold text-slate-900">
-          Contact
-        </h2>
+        <h2 class="text-xl font-bold text-slate-900">Contact</h2>
         <p class="mt-2 text-slate-700 text-sm">
           For higher resolution, custom models, or commercial use:
         </p>
@@ -225,14 +201,17 @@ onBeforeUnmount(() => stopPolling?.())
       </section>
     </main>
 
-    <footer class="border-t border-slate-200 bg-white/80 py-6 text-center text-sm text-slate-500 backdrop-blur-sm">
+    <footer
+      class="border-t border-slate-200 bg-white/80 py-6 text-center text-sm text-slate-500 backdrop-blur-sm"
+    >
       Created by
       <a
         href="https://alexwebmaster.com.br"
         target="_blank"
         rel="noopener noreferrer"
         class="font-medium text-blue-600 hover:text-blue-700"
-      >alexwebmaster.com.br</a>
+        >alexwebmaster.com.br</a
+      >
     </footer>
   </div>
 </template>

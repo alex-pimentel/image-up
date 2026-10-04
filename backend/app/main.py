@@ -1,4 +1,5 @@
 """FastAPI entry point."""
+
 from __future__ import annotations
 
 import logging
@@ -28,7 +29,9 @@ from .task_store import (
 )
 from .worker import enhance_task
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="ImageUp API", version=__version__)
@@ -41,7 +44,9 @@ app.add_middleware(
 )
 
 # Static results served from disk (enhanced + uploaded originals stored in same dir)
-app.mount("/api/results", StaticFiles(directory=str(settings.results_dir)), name="results")
+app.mount(
+    "/api/results", StaticFiles(directory=str(settings.results_dir)), name="results"
+)
 
 store = TaskStore()
 
@@ -79,11 +84,16 @@ def _validate_image(path: Path) -> None:
         with Image.open(path) as im:
             largest = max(im.width, im.height)
     except Exception as e:  # noqa: BLE001 - any decode error becomes a 422
-        raise HTTPException(status_code=422, detail=f"Invalid or unreadable image: {e}")
+        raise HTTPException(
+            status_code=422, detail=f"Invalid or unreadable image: {e}"
+        ) from e
     if largest > settings.max_input_px:
         raise HTTPException(
             status_code=422,
-            detail=f"Input image too large: {largest}px. Maximum largest side is {settings.max_input_px}px.",
+            detail=(
+                f"Input image too large: {largest}px. "
+                f"Maximum largest side is {settings.max_input_px}px."
+            ),
         )
 
 
@@ -95,10 +105,18 @@ async def enhance(
     if scale not in (2, 4):
         raise HTTPException(status_code=422, detail="scale must be 2 or 4")
     if not _ext_ok(file.filename or ""):
-        raise HTTPException(status_code=415, detail=f"Unsupported file type. Allowed: {', '.join(settings.allowed_extensions)}")
+        raise HTTPException(
+            status_code=415,
+            detail=(
+                "Unsupported file type. Allowed: "
+                f"{', '.join(settings.allowed_extensions)}"
+            ),
+        )
     data = await file.read()
     if len(data) > settings.max_upload_mb * 1024 * 1024:
-        raise HTTPException(status_code=413, detail=f"File too large. Max {settings.max_upload_mb}MB.")
+        raise HTTPException(
+            status_code=413, detail=f"File too large. Max {settings.max_upload_mb}MB."
+        )
 
     task_id = _short_id()
     in_name = f"{task_id}{Path(file.filename or 'image').suffix.lower()}"
@@ -137,7 +155,9 @@ async def enhance(
 def status(task_id: str) -> TaskStatusResponse:
     raw = store.get(task_id)
     if raw is None:
-        raise HTTPException(status_code=404, detail="Task not found (may have expired).")
+        raise HTTPException(
+            status_code=404, detail="Task not found (may have expired)."
+        )
     return TaskStatusResponse(
         task_id=task_id,
         status=status_from_raw(raw),

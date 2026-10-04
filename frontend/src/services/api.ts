@@ -28,7 +28,10 @@ export const api = {
   async enhance(file: File, scale = 4): Promise<EnhanceResponse> {
     const form = new FormData()
     form.append('file', file)
-    const res = await fetch(`${API_BASE}/api/enhance?scale=${scale}`, { method: 'POST', body: form })
+    const res = await fetch(`${API_BASE}/api/enhance?scale=${scale}`, {
+      method: 'POST',
+      body: form,
+    })
     return json<EnhanceResponse>(res)
   },
 
@@ -50,7 +53,16 @@ export const api = {
       } catch (e) {
         stopped = true
         clearInterval(timer)
-        onUpdate({ task_id: taskId, status: 'error', original_filename: null, original_url: null, result_url: null, elapsed_sec: null, detail: String(e), backend: null })
+        onUpdate({
+          task_id: taskId,
+          status: 'error',
+          original_filename: null,
+          original_url: null,
+          result_url: null,
+          elapsed_sec: null,
+          detail: String(e),
+          backend: null,
+        })
       }
     }, intervalMs)
     return () => {

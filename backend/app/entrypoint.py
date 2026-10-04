@@ -5,6 +5,7 @@ Weights are cached in /app/models so subsequent restarts skip the download.
 
 Set MD_ENABLE_ML=0 to skip ML entirely and run in fallback mode.
 """
+
 from __future__ import annotations
 
 import os
@@ -33,10 +34,17 @@ def download(path: Path, url: str) -> None:
         urllib.request.urlretrieve(url, tmp)  # nosec - downloading model weights from GitHub releases
         # Another container may have just finished writing the destination.
         if path.exists() and path.stat().st_size > 0:
-            print(f"[entrypoint] {path.name} already written by a peer; discarding local copy", flush=True)
+            print(
+                f"[entrypoint] {path.name} already written by a peer; "
+                "discarding local copy",
+                flush=True,
+            )
             return
         os.replace(tmp, path)
-        print(f"[entrypoint] saved {path} ({path.stat().st_size // 1024 // 1024}MB)", flush=True)
+        print(
+            f"[entrypoint] saved {path} ({path.stat().st_size // 1024 // 1024}MB)",
+            flush=True,
+        )
     finally:
         if tmp.exists():
             tmp.unlink(missing_ok=True)
@@ -54,12 +62,20 @@ def main() -> None:
         else:
             path = MODELS_DIR / f"{name}.pth"
             if path.exists() and path.stat().st_size > 0:
-                print(f"[entrypoint] {name} already present ({path.stat().st_size // 1024 // 1024}MB)", flush=True)
+                print(
+                    f"[entrypoint] {name} already present "
+                    f"({path.stat().st_size // 1024 // 1024}MB)",
+                    flush=True,
+                )
             else:
                 try:
                     download(path, url)
                 except Exception as e:  # noqa: BLE001 - fall back to PIL if download fails
-                    print(f"[entrypoint] download failed ({e}); the worker will run in fallback mode", flush=True)
+                    print(
+                        f"[entrypoint] download failed ({e}); "
+                        "the worker will run in fallback mode",
+                        flush=True,
+                    )
 
     cmd = sys.argv[1:]
     if not cmd:

@@ -9,6 +9,7 @@ avoid collisions.
 Run the worker with:
     celery -A app.worker worker --loglevel=info --concurrency=1
 """
+
 from __future__ import annotations
 
 import logging
@@ -43,13 +44,17 @@ celery_app.conf.update(
     task_queues=(Queue(settings.celery_queue),),
     task_create_missing_queues=False,
     # Namespacing for Celery's internal keys (results, etc.)
-    result_backend_transport_options={"global_keyprefix": settings.redis_key_prefix.replace(":", "")},
+    result_backend_transport_options={
+        "global_keyprefix": settings.redis_key_prefix.replace(":", "")
+    },
     redis_backend_use_redis_group=False,
 )
 
 
 @celery_app.task(name="imageup.enhance", bind=True)
-def enhance_task(self, task_id: str, input_path: str, original_filename: str, scale: int = 4) -> dict:
+def enhance_task(
+    self, task_id: str, input_path: str, original_filename: str, scale: int = 4
+) -> dict:
     store = TaskStore()
     store.update(task_id, status=TaskStatus.PROCESSING.value)
 
@@ -68,7 +73,12 @@ def enhance_task(self, task_id: str, input_path: str, original_filename: str, sc
             result_url=result_url,
             detail=backend,
         )
-        return {"task_id": task_id, "status": "done", "result_url": result_url, "backend": backend}
+        return {
+            "task_id": task_id,
+            "status": "done",
+            "result_url": result_url,
+            "backend": backend,
+        }
     except Exception as e:  # pragma: no cover - error path
         logger.exception("enhance_task failed for %s", task_id)
         store.update(task_id, status=TaskStatus.ERROR.value, detail=str(e))

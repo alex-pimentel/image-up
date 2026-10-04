@@ -1,0 +1,45 @@
+# Pre-commit hooks — Agenteresolve quality standard.
+# Install once with: pre-commit install
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=2000']
+      - id: check-json
+        exclude: 'tsconfig.*\.json$' # allow JSONC comments
+      - id: check-yaml
+
+  # Python (backend)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.10
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: ^backend/
+      - id: ruff-format
+        files: ^backend/
+
+  # Frontend (pnpm)
+  - repo: local
+    hooks:
+      - id: pnpm-format
+        name: pnpm format
+        entry: bash -c 'cd frontend && corepack pnpm exec prettier --write .'
+        language: system
+        pass_filenames: false
+        files: ^frontend/
+      - id: pnpm-lint
+        name: pnpm lint
+        entry: bash -c 'cd frontend && corepack pnpm run lint'
+        language: system
+        pass_filenames: false
+        files: ^frontend/

@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [vue()],
     resolve: {
-      alias: { '@': path.resolve(__dirname, 'src') },
+      alias: { '@': path.resolve(import.meta.dirname, 'src') },
     },
     server: {
       port: 5173,
