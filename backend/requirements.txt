@@ -4,7 +4,7 @@ python-multipart>=0.0.9
 Pillow>=10.2
 redis>=5.0
 celery>=5.3
-boto3>=1.34
+boto3>=1.43.106
 PyJWT[crypto]>=2.8
 
 # ML backend (torch CPU build + Real-ESRGAN). GPU users should override the
