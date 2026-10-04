@@ -25,12 +25,14 @@ jobs:
       coverage: true
 
   security:
+    needs: [api, web]
     permissions:
       contents: read
       security-events: write
     uses: alex-pimentel/agenteresolve-ci/.github/workflows/security-scan.yml@main
 
   docker:
+    needs: [api]
     permissions:
       contents: read
       security-events: write
