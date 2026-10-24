@@ -12,6 +12,9 @@ updates:
         dependency-type: development
       frontend-prod:
         dependency-type: production
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   # Backend (pip)
   - package-ecosystem: pip
