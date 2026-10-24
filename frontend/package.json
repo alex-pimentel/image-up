@@ -26,12 +26,15 @@
   },
   "pnpm": {
     "overrides": {
+      "@clerk/clerk-react@<5.61.6": "^5.61.6",
       "brace-expansion@<1.1.21": "^1.1.21",
       "brace-expansion@>=2.0.0 <2.1.7": "^2.1.7",
       "browserslist@<4.28.7": "^4.28.7",
       "js-yaml@<4.3.2": "^4.3.2",
       "nanoid@<3.3.18": "^3.3.18",
-      "postcss@<8.5.23": "^8.5.23"
+      "postcss@<8.5.23": "^8.5.23",
+      "source-map-js@<1.2.2": "^1.2.2",
+      "vue@<3.5.42": "^3.5.42"
     }
   },
   "devDependencies": {
