@@ -14,7 +14,7 @@ const props = defineProps<{
 <template>
   <div class="rounded-2xl border border-border bg-surface p-6">
     <div class="mb-3 flex flex-col items-center gap-3">
-      <ProgressSpinner v-if="props.running" style="width: 36px; height: 36px" stroke-width="6" />
+      <ProgressSpinner v-if="props.running" style="width: 36px; height: 36px" :stroke-width="6" />
       <span
         v-else
         class="inline-block h-3 w-3 rounded-full"
